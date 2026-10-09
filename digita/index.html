@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Desafio de Digitação | SODIPROM - CAMP Diadema</title>
+  <link rel="icon" type="image/png" href="img/logo-icon-sodiprom.png" />
+
+  <!-- Meta Tags para Redes Sociais (Open Graph) -->
+  <meta name="description" content="Desafio de Digitação da SODIPROM - CAMP Diadema. Teste sua velocidade e precisão no teclado! Parte do programa de Capacitação e Inclusão Digital." />
+  <meta property="og:title" content="Desafio de Digitação - SODIPROM CAMP Diadema" />
+  <meta property="og:description" content="Aperfeiçoe sua velocidade e precisão neste desafio épico de digitação da SODIPROM! Participe do ranking e teste suas habilidades." />
+  <meta property="og:image" content="img/sodiprom-logo.png" />
+  <meta property="og:url" content="https://sodiprom.com.br" />
+  <meta property="og:type" content="website" />
+  
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Desafio de Digitação - SODIPROM CAMP Diadema" />
+  <meta name="twitter:description" content="Teste sua velocidade de digitação e entre para o ranking da SODIPROM - CAMP Diadema!" />
+  <meta name="twitter:image" content="img/sodiprom-logo.png" />
+
+  <!-- Fonte + Tailwind -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Fallback de Imagens SODIPROM -->
+  <script src="img-assets.js"></script>
+  <script>
+    function fallbackImg(el, name) {
+      if (typeof SODIPROM_ASSETS !== 'undefined' && SODIPROM_ASSETS[name]) {
+        el.src = SODIPROM_ASSETS[name];
+        el.removeAttribute('onerror');
+      } else {
+        const paths = ['img/' + name, name, '../' + name, 'imgs/' + name, '../img/' + name, '../imgs/' + name];
+        let idx = parseInt(el.getAttribute('data-err') || '0', 10);
+        if (idx < paths.length) {
+          el.setAttribute('data-err', (idx + 1).toString());
+          el.src = paths[idx];
+        }
+      }
+    }
+  </script>
+
+  <!-- Tone.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+
+  <style>
+    :root {
+      --primary: #5A67D8;
+      --primary-dark: #4c51bf;
+      --success: #38A169;
+      --danger: #e53e3e;
+      --warning: #DD6B20;
+      --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-gradient);
+      color: #2d3748;
+    }
+
+    /* Telas */
+    .screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+      overflow-y: auto;
+      padding: 1.25rem;
+      box-sizing: border-box;
+    }
+    .screen--hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    /* Modais e Cards Padrão */
+    .menu-card {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 2.5rem;
+      border-radius: 24px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+      max-width: 600px;
+      width: 90%;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    /* Menu Inicial Panorâmico / Paisagem (Widescreen) */
+    .menu-card-wide {
+      background: rgba(255, 255, 255, 0.97);
+      padding: 2.25rem 2.75rem;
+      border-radius: 28px;
+      box-shadow: 0 25px 65px rgba(0,0,0,0.35);
+      max-width: 1160px;
+      width: 94%;
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      box-sizing: border-box;
+    }
+
+    /* Layout do Jogo */
+    #main-layout {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      padding: 15px;
+      gap: 15px;
+      box-sizing: border-box;
+    }
+    #play-area {
+      flex: 4;
+      height: 100%;
+      background-color: #edf2f7;
+      border: 3px dashed #A0AEC0;
+      border-radius: 20px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 2px 12px rgba(0,0,0,0.1);
+    }
+    #controls-panel {
+      flex: 1.2;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+      height: 100%;
+      overflow-y: auto;
+    }
+
+    .falling-item {
+      position: absolute;
+      padding: 12px 20px;
+      background-color: var(--primary);
+      color: white;
+      border-radius: 12px;
+      font-size: 1.6rem;
+      font-weight: 700;
+      white-space: nowrap;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+      border-bottom: 4px solid rgba(0,0,0,0.2);
+      transform: translateZ(0);
+    }
+
+    .typed-correct-char { color: #c6f6d5; text-shadow: 0 0 5px rgba(0,0,0,0.2); }
+
+    /* Alvo Travado na Fase 8 (Multitarefa) */
+    .falling-item.target-locked {
+      outline: 3px solid #fbbf24;
+      box-shadow: 0 0 25px rgba(245, 158, 11, 0.8), 0 8px 20px rgba(0,0,0,0.3);
+      transform: scale(1.06) translateZ(0);
+      z-index: 10;
+    }
+    .falling-item.target-other {
+      opacity: 0.75;
+    }
+
+    /* Juiciness: Tela Tremer (Screen Shake) */
+    @keyframes screenShakeAnim {
+      0% { transform: translate(0, 0); }
+      20% { transform: translate(-6px, 4px); }
+      40% { transform: translate(6px, -4px); }
+      60% { transform: translate(-4px, 3px); }
+      80% { transform: translate(4px, -2px); }
+      100% { transform: translate(0, 0); }
+    }
+    .screen-shake {
+      animation: screenShakeAnim 0.35s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    /* Juiciness: Floating Text Popups (+120! COMBO!) */
+    .floating-text {
+      position: absolute;
+      pointer-events: none;
+      font-weight: 900;
+      font-size: 1.35rem;
+      z-index: 50;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.4), 0 0 15px rgba(255,255,255,0.6);
+      animation: floatUpAnim 0.85s ease-out forwards;
+      transform: translate(-50%, -50%);
+      white-space: nowrap;
+    }
+    @keyframes floatUpAnim {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(0.8);
+      }
+      30% {
+        opacity: 1;
+        transform: translate(-50%, -24px) scale(1.2);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -60px) scale(1);
+      }
+    }
+
+    /* Juiciness: Explosão de Partículas */
+    .game-particle {
+      position: absolute;
+      pointer-events: none;
+      border-radius: 50%;
+      z-index: 45;
+      animation: particleBurst 0.65s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+      transform: translate(-50%, -50%);
+    }
+    @keyframes particleBurst {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.2);
+      }
+    }
+
+    /* Juiciness: Combo Badge */
+    .combo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: linear-gradient(135deg, #f59e0b, #ef4444);
+      color: white;
+      font-weight: 900;
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+      animation: comboPulse 0.4s ease-in-out infinite alternate;
+    }
+    @keyframes comboPulse {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.08); }
+    }
+
+    /* Botões */
+    .btn {
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn--primary { background: var(--primary); color: white; }
+    .btn--primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
+    .btn--success { background: var(--success); color: white; }
+    .btn--success:hover { background: #2f855a; transform: translateY(-2px); }
+    .btn--danger { background: var(--danger); color: white; }
+    .btn--danger:hover { background: #c53030; }
+
+    /* Overlays */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    #countdown-timer {
+      font-size: 6rem;
+      font-weight: 800;
+      margin-top: 1rem;
+      color: var(--warning);
+      text-shadow: 0 0 20px rgba(221, 107, 32, 0.5);
+    }
+
+    /* Ranking */
+    .ranking-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 12px;
+      background: #f7fafc;
+      border-radius: 8px;
+      margin-bottom: 4px;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 1024px) {
+      #main-layout { flex-direction: column; overflow-y: auto; }
+      #play-area { height: 50vh; min-height: 350px; flex: none; }
+      #controls-panel { height: auto; flex: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TELA 1: MENU INICIAL (FORMATO PAISAGEM / WIDESCREEN) -->
+  <div id="screen-menu" class="screen">
+    <div class="menu-card-wide reveal">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+        
+        <!-- COLUNA ESQUERDA: Identidade Visual & Guia do Jogo (5 colunas) -->
+        <div class="lg:col-span-5 flex flex-col justify-between text-left border-b lg:border-b-0 lg:border-r border-gray-200 pb-6 lg:pb-0 lg:pr-8">
+          <div>
+            <!-- Logos SODIPROM (Comemorativo 50/55 Anos + Oficial) -->
+            <div class="flex items-center gap-3 mb-4">
+              <a href="https://sodiprom.com.br" target="_blank" rel="noopener noreferrer" class="transition-transform hover:scale-105">
+                <img src="img/sodiprom-logo50anos.png" onerror="fallbackImg(this, 'sodiprom-logo50anos.png')" alt="SODIPROM 50/55 Anos" class="h-16 md:h-20 object-contain drop-shadow-sm">
+              </a>
+              <div class="h-10 w-[1px] bg-gray-200 hidden sm:block"></div>
+              <a href="https://sodiprom.com.br" target="_blank" rel="noopener noreferrer" class="transition-transform hover:scale-105 hidden sm:block">
+                <img src="img/sodiprom-logo.png" onerror="fallbackImg(this, 'sodiprom-logo.png')" alt="SODIPROM CAMP Diadema" class="h-10 md:h-11 object-contain opacity-90">
+              </a>
+            </div>
+
+            <div class="mb-3">
+              <span class="inline-block px-3 py-1 rounded-full text-[11px] font-bold tracking-widest uppercase bg-orange-100 text-orange-700 mb-1.5">
+                SODIPROM • CAMP DIADEMA
+              </span>
+              <h1 class="text-3xl lg:text-4xl font-black text-indigo-800 leading-tight">
+                Desafio de Digitação
+              </h1>
+            </div>
+
+            <p class="text-gray-600 text-sm leading-relaxed mb-5">
+              Aperfeiçoe sua velocidade, agilidade e precisão no teclado! Digite as palavras em queda livre antes que atinjam o chão.
+            </p>
+
+            <!-- Box Como Jogar com layout moderno -->
+            <div class="bg-gradient-to-br from-indigo-50/80 to-purple-50/80 p-4 rounded-2xl border border-indigo-100 mb-4">
+              <h3 class="font-bold text-indigo-900 text-sm mb-2.5 flex items-center gap-2">
+                <span>🎯</span> <strong>Instruções do Jogo:</strong>
+              </h3>
+              <ul class="text-xs text-gray-700 space-y-2">
+                <li class="flex items-start gap-2">
+                  <span class="text-indigo-600 font-bold">•</span>
+                  <span><strong>Digitação Direta:</strong> Digite a palavra; ela é validada automaticamente sem apertar <strong>Enter</strong>.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-indigo-600 font-bold">•</span>
+                  <span><strong>Errou uma letra?</strong> A palavra reinicia e você deve redigitá-la do começo.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-indigo-600 font-bold">•</span>
+                  <span><strong>Velocidade = Mais Pontos:</strong> Quanto mais rápido completar, maior o bônus.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-indigo-600 font-bold">•</span>
+                  <span><strong>Desafio:</strong> Conclua todas as 8 fases (incluindo Tempestade Multitarefa) e dispute o <strong>Top 10</strong>!</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Link do rodapé institucional -->
+          <div class="pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+            <a href="https://sodiprom.com.br" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 font-semibold text-gray-600 hover:text-orange-600 transition-colors">
+              <img src="img/logo-icon-sodiprom.png" onerror="fallbackImg(this, 'logo-icon-sodiprom.png')" alt="SODIPROM" class="w-5 h-5 object-contain">
+              <span>sodiprom.com.br</span>
+            </a>
+            <span class="text-[11px] text-gray-400">Inclusão Digital</span>
+          </div>
+        </div>
+
+        <!-- COLUNA DIREITA: Escolha de Modo, Play & Ações (7 colunas) -->
+        <div class="lg:col-span-7 flex flex-col justify-between text-left">
+          
+          <div>
+            <!-- Seletor de Dificuldade / Modo -->
+            <div class="mb-6">
+              <label class="block text-sm font-bold text-gray-700 uppercase tracking-wide mb-3">
+                1. Escolha seu Modo de Jogo:
+              </label>
+              
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <!-- Modo Iniciante -->
+                <button id="mode-beginner" class="mode-btn text-left p-4 rounded-2xl border-2 border-indigo-600 bg-indigo-50/80 shadow-md transition-all cursor-pointer relative group" data-mode="beginner">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-lg font-black text-indigo-900 flex items-center gap-2">
+                      <span>🌱</span> Iniciante
+                    </span>
+                    <span class="mode-indicator w-3.5 h-3.5 rounded-full bg-indigo-600 ring-4 ring-indigo-200"></span>
+                  </div>
+                  <p class="text-xs text-gray-600 leading-relaxed">
+                    Treino contínuo: erros descontam pontos leves, <strong>sem limite de vidas</strong>. Ideal para praticar.
+                  </p>
+                </button>
+
+                <!-- Modo Especialista -->
+                <button id="mode-expert" class="mode-btn text-left p-4 rounded-2xl border-2 border-gray-200 bg-white hover:border-indigo-300 transition-all cursor-pointer relative group" data-mode="expert">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-lg font-black text-gray-800 flex items-center gap-2">
+                      <span>👑</span> Rei Digitador
+                    </span>
+                    <span class="mode-indicator w-3.5 h-3.5 rounded-full bg-transparent border-2 border-gray-300"></span>
+                  </div>
+                  <p class="text-xs text-gray-600 leading-relaxed">
+                    Desafio competitivo: apenas <strong>3 vidas</strong> ❤️❤️❤️ e pontuação com <strong>multiplicador 2x</strong>!
+                  </p>
+                </button>
+              </div>
+            </div>
+
+            <!-- Botão Hero Principal -->
+            <div class="mb-4">
+              <button id="btn-start" class="btn btn--success w-full text-xl py-4 font-black shadow-lg shadow-green-600/30 hover:shadow-green-600/50 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-3">
+                <span class="text-2xl">🚀</span>
+                <span>INICIAR DESAFIO</span>
+              </button>
+            </div>
+
+            <!-- Botão de Modo Estudo -->
+            <div class="mb-3">
+              <button id="btn-study-mode" class="btn bg-orange-50 hover:bg-orange-100 text-orange-700 font-bold w-full py-3.5 border-2 border-orange-200 hover:border-orange-300 rounded-xl transition-all flex items-center justify-center gap-2 text-sm shadow-sm">
+                <span class="text-base">📖</span>
+                <span>MODO ESTUDO (Treinar Fases Específicas)</span>
+              </button>
+            </div>
+
+            <!-- Botão de Acesso ao Mestre do Teclado Cego -->
+            <div class="mb-5">
+              <a href="../teclado-cego/index.html" class="btn bg-gradient-to-r from-purple-50 to-indigo-50 hover:from-purple-100 hover:to-indigo-100 text-indigo-800 font-bold w-full py-3.5 border-2 border-indigo-200 hover:border-indigo-300 rounded-xl transition-all flex items-center justify-center gap-2 text-sm shadow-sm" title="Aprenda a digitar sem olhar para o teclado com os 10 dedos no padrão ABNT2">
+                <span class="text-base">⌨️</span>
+                <span>NOVO: Mestre do Teclado Cego (ABNT2)</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Botões de Ações Rápidas -->
+          <div class="pt-4 border-t border-gray-100">
+            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+              Opções & Painéis:
+            </label>
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+              <a href="../index.html" class="btn bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 text-xs rounded-xl border border-indigo-200 transition-all flex items-center justify-center gap-1.5 shadow-sm" title="Ir para o Portal de Jogos SODIPROM">
+                <span>🏠</span>
+                <span>PORTAL</span>
+              </a>
+              <button id="btn-view-ranking-menu" class="btn bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 text-xs rounded-xl border border-indigo-200 transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                <span>🏆</span>
+                <span>RANKING</span>
+              </button>
+              <button id="btn-about-menu" class="btn bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 text-xs rounded-xl border border-indigo-200 transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                <span>ℹ️</span>
+                <span>SOBRE</span>
+              </button>
+              <button id="btn-sound-menu" class="btn btn--primary py-3 text-xs rounded-xl font-bold transition-all shadow-sm">
+                🔊 SOM
+              </button>
+              <a href="admin.php" target="_blank" class="btn bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold py-3 text-xs rounded-xl border border-gray-200 transition-all flex items-center justify-center gap-1.5 shadow-sm" title="Painel de Administração do Ranking">
+                <span>⚙️</span>
+                <span>ADMIN</span>
+              </a>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- TELA: SELEÇÃO DE FASES (MODO ESTUDO) -->
+  <div id="screen-study" class="screen screen--hidden">
+    <div class="menu-card max-w-4xl max-h-[90vh] flex flex-col">
+      <h2 class="text-3xl font-black text-orange-600 mb-2">Modo Estudo</h2>
+      <p class="text-gray-600 mb-6">Escolha uma fase para praticar. Seus pontos não serão salvos no ranking.</p>
+      
+      <div id="study-phases-list" class="grid grid-cols-1 md:grid-cols-2 gap-3 overflow-y-auto pr-2 mb-6">
+        <!-- JS preenche aqui -->
+      </div>
+
+      <button id="btn-back-study" class="btn bg-gray-200 text-gray-700 w-full py-4 font-bold">VOLTAR AO MENU</button>
+    </div>
+  </div>
+
+  <!-- TELA: SOBRE O JOGO -->
+  <div id="screen-about" class="overlay screen--hidden">
+    <div class="menu-card text-left max-w-2xl">
+      <div class="flex items-center gap-4 mb-4 border-b-2 border-indigo-100 pb-3">
+        <img src="img/sodiprom-logo.png" onerror="fallbackImg(this, 'sodiprom-logo.png')" alt="SODIPROM - CAMP Diadema" class="h-12 object-contain">
+        <div>
+          <h2 class="text-2xl font-black text-indigo-700">Sobre este Jogo</h2>
+          <span class="text-xs font-semibold text-orange-600 uppercase tracking-wider">SODIPROM • CAMP Diadema</span>
+        </div>
+      </div>
+      
+      <div class="space-y-4 text-gray-700">
+        <p class="font-bold text-lg text-indigo-600">Este desafio faz parte das atividades de Capacitação e Inclusão Digital da SODIPROM - CAMP Diadema.</p>
+        
+        <p>Acreditamos que a tecnologia e a qualificação profissional são ferramentas poderosas de transformação social. A <strong>SODIPROM</strong> atua dedicadamente no desenvolvimento de adolescentes e jovens, preparando-os para o mercado de trabalho através de cursos e programas de socioaprendizagem.</p>
+        
+        <p>A velocidade e precisão na <strong>digitação</strong> são competências práticas fundamentais para rotinas profissionais e administrativas, aumentando o foco, a produtividade e a fluência digital dos aprendizes.</p>
+        
+        <div class="bg-indigo-50 p-4 rounded-xl border-l-4 border-indigo-400 italic">
+          "Desenvolver jovens e abrir portas para o futuro profissional através da educação, cidadania e tecnologia."
+        </div>
+      </div>
+
+      <div class="mt-8 flex gap-4">
+        <button id="btn-back-from-about" class="btn btn--primary flex-1 py-4">VOLTAR AO MENU</button>
+        <a href="https://sodiprom.com.br" target="_blank" rel="noopener noreferrer" class="btn btn--success px-6">CONHECER A SODIPROM</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- TELA 2: ÁREA DO JOGO -->
+  <div id="screen-game" class="screen screen--hidden">
+    <div id="main-layout">
+      <div id="play-area">
+        <!-- Palavras caindo aqui -->
+      </div>
+
+      <div id="controls-panel">
+        <div class="flex items-center justify-center gap-2 pb-2 border-b border-gray-100">
+          <img src="img/logo-icon-sodiprom.png" onerror="fallbackImg(this, 'logo-icon-sodiprom.png')" alt="SODIPROM" class="h-7 w-7 object-contain">
+          <div class="text-left">
+            <h2 class="text-sm font-extrabold text-indigo-700 leading-tight">SODIPROM</h2>
+            <span class="text-[9px] text-gray-400 font-semibold tracking-wider block">CAMP DIADEMA</span>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 gap-2 mt-2">
+          <div class="bg-green-50 p-3 rounded-lg border border-green-200">
+            <span class="text-xs uppercase font-bold text-green-600 block">Pontuação</span>
+            <div class="flex items-center justify-between">
+              <span id="display-score" class="text-2xl font-black text-green-700">0</span>
+              <span id="display-combo-badge" class="combo-badge hidden">COMBO x1</span>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-2 gap-2">
+            <div class="bg-blue-50 p-2 rounded-lg border border-blue-200 text-center">
+              <span class="text-[10px] uppercase font-bold text-blue-600 block">Velocidade</span>
+              <span id="display-wpm" class="text-lg font-black text-blue-700">0 <span class="text-[10px] font-semibold text-blue-500">PPM</span></span>
+            </div>
+            <div class="bg-purple-50 p-2 rounded-lg border border-purple-200 text-center">
+              <span class="text-[10px] uppercase font-bold text-purple-600 block">Precisão</span>
+              <span id="display-accuracy" class="text-lg font-black text-purple-700">100%</span>
+            </div>
+          </div>
+          
+          <div class="bg-orange-50 p-2.5 rounded-lg border border-orange-200">
+            <span class="text-xs uppercase font-bold text-orange-600 block">Fase Atual</span>
+            <span id="display-level" class="text-sm font-bold text-orange-700 truncate block">Carregando...</span>
+          </div>
+
+          <div id="expert-stats" class="bg-red-50 p-2.5 rounded-lg border border-red-200 hidden">
+            <span class="text-xs uppercase font-bold text-red-600 block">Vidas</span>
+            <span id="display-lives" class="text-xl font-black text-red-700">❤️❤️❤️</span>
+          </div>
+        </div>
+
+        <div class="mt-2">
+          <div id="display-message" class="text-sm font-medium text-center py-2 min-h-[40px] text-gray-500 italic">
+            Prepare-se...
+          </div>
+        </div>
+
+        <div class="bg-gray-100 p-4 rounded-xl text-center">
+          <span class="text-xs text-gray-500 uppercase block mb-1">Digitando:</span>
+          <div id="display-input" class="text-2xl font-mono font-bold text-indigo-600 min-h-[36px]"></div>
+        </div>
+
+        <div class="mt-auto pt-4 flex flex-col gap-2">
+          <button id="btn-quit" class="btn btn--danger w-full">DESISTIR</button>
+          <div class="flex gap-2">
+            <button id="btn-sound-game" class="btn btn--primary flex-1">SOM: ON</button>
+            <a href="https://sodiprom.com.br" target="_blank" rel="noopener noreferrer" class="btn bg-orange-500 hover:bg-orange-600 text-white flex-1 text-xs">SODIPROM</a>
+          </div>
+        </div>
+
+        <div class="mt-4 border-t pt-4">
+          <h3 class="font-bold text-indigo-800 text-sm mb-2 flex items-center gap-2">🏆 TOP 10 MUNDIAL</h3>
+          <div id="ranking-list" class="space-y-1 max-h-[150px] overflow-y-auto">
+            <!-- Ranking real-time -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TELA 3: TRANSIÇÃO DE FASE -->
+  <div id="screen-transition" class="overlay screen--hidden">
+    <h2 class="text-3xl font-bold mb-2">FASE CONCLUÍDA!</h2>
+    <div class="w-24 h-1 bg-indigo-500 mb-8"></div>
+    
+    <div id="phase-info" class="max-w-md">
+      <h3 id="next-phase-name" class="text-4xl font-black text-indigo-400 mb-4">FASE 2</h3>
+      <p id="next-phase-desc" class="text-xl text-gray-300">Prepare os dedos! Agora as palavras terão 2 letras e cairão um pouco mais rápido.</p>
+    </div>
+
+    <div class="mt-12">
+      <span class="text-gray-400 uppercase tracking-widest text-sm">Próxima fase em</span>
+      <div id="countdown-timer">5</div>
+    </div>
+  </div>
+
+  <!-- TELA 4: FIM DE JOGO -->
+  <div id="screen-gameover" class="overlay screen--hidden">
+    <div class="menu-card text-gray-800">
+      <h2 id="gameover-title" class="text-4xl font-black text-red-600 mb-2">FIM DE JOGO</h2>
+      <p id="gameover-msg" class="text-gray-600 mb-6">Não foi dessa vez, mas você lutou bravamente!</p>
+      
+      <div class="bg-indigo-600 text-white p-6 rounded-2xl mb-8 transform -rotate-1 shadow-lg">
+        <span class="block text-xs uppercase opacity-75 font-bold tracking-wider">Sua Pontuação Final</span>
+        <span id="final-score" class="text-6xl font-black">0</span>
+        <div class="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-indigo-400/50 text-center">
+          <div>
+            <span class="text-[10px] uppercase opacity-75 block font-bold">Velocidade</span>
+            <span id="final-wpm" class="text-lg font-black">0 PPM</span>
+          </div>
+          <div>
+            <span class="text-[10px] uppercase opacity-75 block font-bold">Precisão</span>
+            <span id="final-accuracy" class="text-lg font-black">100%</span>
+          </div>
+          <div>
+            <span class="text-[10px] uppercase opacity-75 block font-bold">Maior Combo</span>
+            <span id="final-combo" class="text-lg font-black">x0</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="ranking-form" class="mb-8">
+        <p class="font-semibold mb-3">Deseja entrar para o ranking?</p>
+        <div class="flex gap-2">
+          <input type="text" id="player-name" maxlength="15" placeholder="Seu nome ou apelido" class="flex-1 p-3 border-2 border-indigo-200 rounded-xl focus:border-indigo-500 outline-none transition-all">
+          <button id="btn-save-score" class="btn btn--success px-8">SALVAR</button>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-3">
+        <div class="flex gap-4">
+          <button id="btn-restart" class="btn btn--primary flex-1 py-4">TENTAR NOVAMENTE</button>
+          <button id="btn-back-menu" class="btn bg-gray-200 text-gray-700 flex-1 py-4">MENU INICIAL</button>
+        </div>
+        <button id="btn-view-ranking-end" class="btn bg-indigo-100 text-indigo-700 w-full py-3">VER RANKING COMPLETO 🏆</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // 1. CONFIGURAÇÕES E VOCABULÁRIO
+    // ==========================================
+    
+    // Corrigindo o vocabulário para bater exatamente com o número de letras
+    const PHASES_DATA = [
+      { 
+        id: 0, name: "Fase 1: Letras Soltas", 
+        desc: "Aqueça os dedos! Apenas letras individuais caindo suavemente.",
+        items: 'abcdefghijklmnopqrstuvwxyz'.split(''),
+        len: 1, count: 12, speed: 1.2 
+      },
+      { 
+        id: 1, name: "Fase 2: Duplas Dinâmicas", 
+        desc: "Agora as coisas se juntam! Palavras de 2 letras.",
+        items: ['ir','em','de','do','da','eu','tu','no','na','um','se','ja','vi','oi','ai','ou','me','te','os','as','ao','la','lo','si','so','su','ti','to','ta','pe','po','pa','bo','ba','bi','co','ca','ci','go','ga','gi'],
+        len: 2, count: 15, speed: 1.4 
+      },
+      { 
+        id: 2, name: "Fase 3: Trios de Ataque", 
+        desc: "Palavras de 3 letras. Mantenha o ritmo!",
+        items: ['sol','lua','rei','mar','paz','luz','cor','som','ver','ser','bom','dia','sal','rua','ler','voz','fim','sim','bem','mal','dor','rio','ave','ovo','uva','mel','gel','lei','vez','fez','dez','mil','cem','ano','mes','pai','mae','tio','tia','boi','dom','ato','uso','elo'],
+        len: 3, count: 18, speed: 1.6 
+      },
+      { 
+        id: 3, name: "Fase 4: Quartetos Rápidos", 
+        desc: "O desafio aumenta! Palavras de 4 letras em queda livre.",
+        items: ['casa','gato','amor','vida','flor','fogo','doce','frio','novo','azul','rosa','belo','feio','alto','rico','seco','sujo','duro','mole','liso','rato','pato','sapo','lobo','urso','leao','vaca','mesa','copo','faca','povo','puro','fala'],
+        len: 4, count: 20, speed: 1.8 
+      },
+      { 
+        id: 4, name: "Fase 5: Quinteto Fantástico", 
+        desc: "Muita atenção agora! Palavras de 5 letras exigem precisão.",
+        items: ['festa','verde','feliz','vento','pedra','chuva','calor','forte','sonho','letra','jogar','comer','beber','voar','achar','pagar','pegar','abrir','parar','ficar','peixe','cobra','mosca','ponte','porta','livro','corpo','mente'],
+        len: 5, count: 22, speed: 2.0 
+      },
+      { 
+        id: 5, name: "Fase 6: Sexteto de Elite", 
+        desc: "Quase lá! Palavras de 6 letras para testar seu limite.",
+        items: ['rapido','escola','brasil','amigo','futuro','musica','janela','viagem','beleza','pessoa','homem','mulher','cabelo','costas','pernas','sangue','queixo','alegre','animal','cidade','escada','frente','altura','modelo'],
+        len: 6, count: 25, speed: 2.2 
+      },
+      { 
+        id: 6, name: "Fase 7: Desafio Acentuado", 
+        desc: "Atenção máxima! Palavras com acentuação e cedilha.",
+        items: ['céu','mãe','pão','café','sofá','você','ótimo','música','coração','pássaro','manhã','lição','ação','nação','região','religião','avião','limão','mamão','melão','balão','botão','caminhão','açúcar','fácil','nível','útil','difícil'],
+        len: null, count: 25, speed: 2.0 
+      },
+      { 
+        id: 7, name: "Fase 8: Tempestade Multitarefa", 
+        desc: "O teste supremo! Múltiplas palavras descendo juntas. Digite a primeira letra para travar a mira e destrua uma a uma antes que toquem o chão!",
+        items: ['foco','fluxo','rapidez','energia','talento','futuro','estudo','trabalho','conquista','sucesso','agilidade','reflexo','teclado','vitoria','coragem','desafio','jovem','cidadania','sociedade','aprender','crescer','avancar'],
+        len: null, count: 28, speed: 2.1,
+        multiWord: true, maxConcurrent: 3 
+      }
+    ];
+
+    // ==========================================
+    // 2. ESTADO GLOBAL E ELEMENTOS
+    // ==========================================
+    const state = {
+      active: false,
+      mode: 'beginner', // 'beginner' | 'expert'
+      score: 0,
+      lives: 3,
+      phaseIdx: 0,
+      completedInPhase: 0,
+      typed: "",
+      activeWords: [], // Array de { id, text, element, x, y, spawnTime }
+      targetedWord: null, // Alvo travado atualmente
+      fallSpeed: 1.0,
+      loopId: null,
+      lastFrameTime: null,
+      lastSpawnTime: 0,
+      sound: true,
+      studyMode: false,
+      // Telemetria (1.1)
+      gameStartTime: null,
+      correctChars: 0,
+      totalErrors: 0,
+      // Juiciness (1.3)
+      combo: 0,
+      maxCombo: 0
+    };
+
+    const UI = {
+      screens: {
+        menu: document.getElementById('screen-menu'),
+        game: document.getElementById('screen-game'),
+        transition: document.getElementById('screen-transition'),
+        gameover: document.getElementById('screen-gameover'),
+        about: document.getElementById('screen-about'),
+        study: document.getElementById('screen-study')
+      },
+      game: {
+        playArea: document.getElementById('play-area'),
+        score: document.getElementById('display-score'),
+        comboBadge: document.getElementById('display-combo-badge'),
+        wpm: document.getElementById('display-wpm'),
+        accuracy: document.getElementById('display-accuracy'),
+        level: document.getElementById('display-level'),
+        lives: document.getElementById('display-lives'),
+        expertStats: document.getElementById('expert-stats'),
+        input: document.getElementById('display-input'),
+        message: document.getElementById('display-message'),
+        ranking: document.getElementById('ranking-list')
+      },
+      trans: {
+        name: document.getElementById('next-phase-name'),
+        desc: document.getElementById('next-phase-desc'),
+        timer: document.getElementById('countdown-timer')
+      },
+      over: {
+        title: document.getElementById('gameover-title'),
+        msg: document.getElementById('gameover-msg'),
+        score: document.getElementById('final-score'),
+        wpm: document.getElementById('final-wpm'),
+        accuracy: document.getElementById('final-accuracy'),
+        combo: document.getElementById('final-combo'),
+        nameInput: document.getElementById('player-name'),
+        rankingForm: document.getElementById('ranking-form')
+      }
+    };
+
+    // ==========================================
+    // 3. SISTEMA DE ÁUDIO (Tone.js com Variação Dinâmica)
+    // ==========================================
+    const AUDIO = {
+      synth: new Tone.PolySynth(Tone.Synth).toDestination(),
+      init() {
+        this.synth.set({ oscillator: { type: 'triangle' }, envelope: { attack: 0.05, release: 0.2 } });
+        Tone.Destination.volume.value = -12;
+      },
+      play(type) {
+        if (!state.sound) return;
+        if (Tone.context.state !== 'running') Tone.start();
+        
+        switch(type) {
+          case 'correct':
+            if (state.combo >= 6) {
+              this.synth.triggerAttackRelease(['G4', 'C5', 'E5'], '8n');
+            } else if (state.combo >= 3) {
+              this.synth.triggerAttackRelease(['F4', 'A4', 'C5'], '8n');
+            } else {
+              this.synth.triggerAttackRelease(['E4', 'G4'], '8n');
+            }
+            break;
+          case 'wrong':
+            this.synth.triggerAttackRelease(['C3', 'D#3'], '4n');
+            break;
+          case 'phase':
+            this.synth.triggerAttackRelease(['C4', 'E4', 'G4', 'C5'], '4n');
+            break;
+          case 'spawn':
+            this.synth.triggerAttackRelease(['G5'], '32n', undefined, 0.1);
+            break;
+        }
+      }
+    };
+    AUDIO.init();
+
+    // ==========================================
+    // 4. TELEMETRIA E JUICINESS
+    // ==========================================
+    function calculateTelemetry() {
+      const elapsedMin = state.gameStartTime ? Math.max(0.02, (Date.now() - state.gameStartTime) / 60000) : 0.02;
+      const wpm = Math.round((state.correctChars / 5) / elapsedMin);
+      const totalKeystrokes = state.correctChars + state.totalErrors;
+      const accuracy = totalKeystrokes > 0 ? Math.round((state.correctChars / totalKeystrokes) * 100) : 100;
+      return { wpm, accuracy };
+    }
+
+    function updateTelemetryUI() {
+      const { wpm, accuracy } = calculateTelemetry();
+      if (UI.game.wpm) UI.game.wpm.innerHTML = `${wpm} <span class="text-[10px] font-semibold text-blue-500">PPM</span>`;
+      if (UI.game.accuracy) UI.game.accuracy.textContent = `${accuracy}%`;
+    }
+
+    function showFloatingText(text, x, y, color = '#38a169') {
+      const el = document.createElement('div');
+      el.className = 'floating-text';
+      el.textContent = text;
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+      el.style.color = color;
+      UI.game.playArea.appendChild(el);
+      setTimeout(() => el.remove(), 850);
+    }
+
+    function spawnParticles(x, y) {
+      const colors = ['#10b981', '#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6', '#f97316', '#06b6d4'];
+      const particleCount = 14;
+      for (let i = 0; i < particleCount; i++) {
+        const p = document.createElement('div');
+        p.className = 'game-particle';
+        const size = Math.floor(Math.random() * 8) + 6;
+        p.style.width = `${size}px`;
+        p.style.height = `${size}px`;
+        p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        p.style.left = `${x}px`;
+        p.style.top = `${y}px`;
+
+        const angle = (Math.PI * 2 / particleCount) * i + (Math.random() * 0.4 - 0.2);
+        const distance = Math.floor(Math.random() * 55) + 35;
+        const dx = Math.cos(angle) * distance;
+        const dy = Math.sin(angle) * distance;
+
+        p.style.setProperty('--dx', `${dx}px`);
+        p.style.setProperty('--dy', `${dy}px`);
+
+        UI.game.playArea.appendChild(p);
+        setTimeout(() => p.remove(), 650);
+      }
+    }
+
+    function triggerScreenShake() {
+      UI.game.playArea.classList.remove('screen-shake');
+      void UI.game.playArea.offsetWidth;
+      UI.game.playArea.classList.add('screen-shake');
+      setTimeout(() => {
+        UI.game.playArea.classList.remove('screen-shake');
+      }, 360);
+    }
+
+    function updateComboUI() {
+      if (!UI.game.comboBadge) return;
+      if (state.combo >= 2) {
+        UI.game.comboBadge.classList.remove('hidden');
+        UI.game.comboBadge.textContent = `COMBO x${state.combo} 🔥`;
+      } else {
+        UI.game.comboBadge.classList.add('hidden');
+      }
+    }
+
+    // ==========================================
+    // 5. LÓGICA DE NAVEGAÇÃO
+    // ==========================================
+    function showScreen(screenKey) {
+      Object.keys(UI.screens).forEach(key => {
+        UI.screens[key].classList.toggle('screen--hidden', key !== screenKey);
+      });
+    }
+
+    // ==========================================
+    // 6. LÓGICA DO JOGO (ENGINE)
+    // ==========================================
+    
+    function initGame() {
+      state.score = 0;
+      state.lives = 3;
+      state.phaseIdx = 0;
+      state.completedInPhase = 0;
+      state.active = true;
+      state.typed = "";
+      state.studyMode = false;
+      state.activeWords = [];
+      state.targetedWord = null;
+      state.lastFrameTime = null;
+      state.lastSpawnTime = 0;
+      state.gameStartTime = Date.now();
+      state.correctChars = 0;
+      state.totalErrors = 0;
+      state.combo = 0;
+      state.maxCombo = 0;
+      
+      UI.game.score.textContent = "0";
+      UI.game.input.textContent = "";
+      UI.game.message.textContent = "Prepare-se!";
+      UI.game.message.style.color = '';
+      UI.game.playArea.innerHTML = "";
+      updateComboUI();
+      updateTelemetryUI();
+      
+      if (state.mode === 'expert') {
+        UI.game.expertStats.classList.remove('hidden');
+        updateLivesUI();
+      } else {
+        UI.game.expertStats.classList.add('hidden');
+      }
+
+      showScreen('game');
+      startPhase();
+    }
+
+    function startPhase() {
+      const phase = PHASES_DATA[state.phaseIdx];
+      state.fallSpeed = phase.speed;
+      UI.game.level.textContent = phase.name;
+      state.lastSpawnTime = 0;
+      state.activeWords = [];
+      state.targetedWord = null;
+      state.typed = "";
+      UI.game.playArea.innerHTML = "";
+      updateTypedUI();
+
+      if (phase.multiWord) {
+        UI.game.message.textContent = "Sobrecarga Ativa! Múltiplas palavras descendo!";
+        UI.game.message.style.color = '#c53030';
+        setTimeout(spawnItem, 400);
+        setTimeout(spawnItem, 1600);
+        setTimeout(spawnItem, 2800);
+      } else {
+        setTimeout(spawnItem, 500);
+      }
+
+      if (!state.loopId) {
+        state.lastFrameTime = performance.now();
+        state.loopId = requestAnimationFrame(gameLoop);
+      }
+    }
+
+    function startStudyPhase(idx) {
+      state.studyMode = true;
+      state.phaseIdx = idx;
+      state.score = 0;
+      state.completedInPhase = 0;
+      state.active = true;
+      state.typed = "";
+      state.activeWords = [];
+      state.targetedWord = null;
+      state.lastFrameTime = null;
+      state.lastSpawnTime = 0;
+      state.gameStartTime = Date.now();
+      state.correctChars = 0;
+      state.totalErrors = 0;
+      state.combo = 0;
+      state.maxCombo = 0;
+      
+      UI.game.score.textContent = "0 (Estudo)";
+      UI.game.input.textContent = "";
+      UI.game.message.textContent = "Modo Estudo Ativo";
+      UI.game.message.style.color = '';
+      UI.game.playArea.innerHTML = "";
+      UI.game.expertStats.classList.add('hidden');
+      updateComboUI();
+      updateTelemetryUI();
+
+      showScreen('game');
+      startPhase();
+    }
+
+    function spawnItem() {
+      if (!state.active) return;
+      const phase = PHASES_DATA[state.phaseIdx];
+
+      // Se a contagem total da fase já foi alcançada entre concluídas e ativas, não cria mais
+      if (state.completedInPhase + state.activeWords.length >= phase.count) {
+        return;
+      }
+
+      // Em fases convencionais (1 a 7), nunca ter mais de 1 palavra na tela
+      if (!phase.multiWord && state.activeWords.length >= 1) {
+        return;
+      }
+
+      const word = phase.items[Math.floor(Math.random() * phase.items.length)];
+      const wordId = 'w_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
+
+      const div = document.createElement('div');
+      div.className = 'falling-item';
+      div.id = wordId;
+      div.textContent = word;
+      UI.game.playArea.appendChild(div);
+
+      const playWidth = UI.game.playArea.offsetWidth;
+      const divWidth = div.offsetWidth || (word.length * 20 + 40);
+      const maxWidth = Math.max(20, playWidth - divWidth - 30);
+      
+      let posX = Math.random() * maxWidth + 15;
+      if (phase.multiWord && state.activeWords.length > 0) {
+        // Distribuir em pistas para evitar sobreposição excessiva
+        const lanes = [playWidth * 0.08, playWidth * 0.40, playWidth * 0.72];
+        const laneX = lanes[state.activeWords.length % lanes.length];
+        posX = Math.min(maxWidth, Math.max(15, laneX + (Math.random() * 40 - 20)));
+      }
+
+      div.style.left = posX + 'px';
+      div.style.top = '0px';
+
+      const wordObj = {
+        id: wordId,
+        text: word,
+        element: div,
+        x: posX,
+        y: 0,
+        spawnTime: Date.now()
+      };
+
+      state.activeWords.push(wordObj);
+      state.lastSpawnTime = Date.now();
+
+      // Nas fases de palavra única, travar alvo automaticamente
+      if (!phase.multiWord) {
+        state.targetedWord = wordObj;
+        state.typed = "";
+        UI.game.input.textContent = "";
+        UI.game.message.textContent = "Digite agora!";
+        UI.game.message.style.color = '';
+        updateWordHighlights();
+      } else {
+        if (!state.targetedWord) {
+          UI.game.message.textContent = "Mire na 1ª letra de qualquer palavra!";
+          UI.game.message.style.color = '#4f46e5';
+        }
+      }
+
+      AUDIO.play('spawn');
+    }
+
+    // Game loop baseado em Delta Time (1.1)
+    function gameLoop(timestamp) {
+      if (!state.active) {
+        state.loopId = null;
+        return;
+      }
+
+      if (!state.lastFrameTime) state.lastFrameTime = timestamp;
+      const dt = Math.min((timestamp - state.lastFrameTime) / 1000, 0.1);
+      state.lastFrameTime = timestamp;
+
+      // Velocidade física em pixels por segundo independente de taxa de quadros (60Hz, 144Hz, 240Hz)
+      const speedPxPerSec = state.fallSpeed * 65;
+      const movement = speedPxPerSec * dt;
+      const playHeight = UI.game.playArea.offsetHeight;
+
+      for (let i = state.activeWords.length - 1; i >= 0; i--) {
+        const item = state.activeWords[i];
+        item.y += movement;
+        item.element.style.top = item.y + 'px';
+
+        // Colisão com o chão
+        if (item.y + item.element.offsetHeight >= playHeight) {
+          handleWordLoss(item);
+        }
+      }
+
+      // Spawning contínuo na Fase 8 (Multitarefa)
+      const phase = PHASES_DATA[state.phaseIdx];
+      if (phase && phase.multiWord && state.active) {
+        const maxConc = phase.maxConcurrent || 3;
+        if (state.activeWords.length < maxConc && 
+            (state.completedInPhase + state.activeWords.length) < phase.count) {
+          if (Date.now() - state.lastSpawnTime > 1600) {
+            spawnItem();
+          }
+        }
+      }
+
+      updateTelemetryUI();
+
+      state.loopId = requestAnimationFrame(gameLoop);
+    }
+
+    function handleWordLoss(lostWord) {
+      AUDIO.play('wrong');
+      triggerScreenShake();
+      
+      UI.game.message.textContent = `Puxa! Perdeu: "${lostWord.text}"`;
+      UI.game.message.style.color = '#e53e3e';
+      
+      state.combo = 0;
+      updateComboUI();
+
+      if (state.targetedWord && state.targetedWord.id === lostWord.id) {
+        state.targetedWord = null;
+        state.typed = "";
+        updateTypedUI();
+      }
+
+      if (lostWord.element) lostWord.element.remove();
+      state.activeWords = state.activeWords.filter(w => w.id !== lostWord.id);
+      updateWordHighlights();
+
+      if (state.mode === 'expert') {
+        state.lives--;
+        updateLivesUI();
+        if (state.lives <= 0) {
+          endGame(false);
+          return;
+        }
+      } else {
+        state.score = Math.max(0, state.score - 15);
+        UI.game.score.textContent = state.score;
+      }
+
+      const phase = PHASES_DATA[state.phaseIdx];
+      if (!phase.multiWord) {
+        setTimeout(() => {
+          if (state.active && state.activeWords.length === 0) {
+            spawnItem();
+          }
+        }, 800);
+      } else {
+        if (state.active && state.activeWords.length < (phase.maxConcurrent || 3)) {
+          setTimeout(() => {
+            if (state.active && state.activeWords.length < (phase.maxConcurrent || 3)) {
+              spawnItem();
+            }
+          }, 600);
+        }
+      }
+    }
+
+    function updateLivesUI() {
+      UI.game.lives.textContent = "❤️".repeat(state.lives) + "🖤".repeat(3 - state.lives);
+    }
+
+    function handleKeydown(e) {
+      if (!state.active || state.activeWords.length === 0) return;
+      
+      // Ignorar teclas modificadoras e de composição (Dead keys para acentos)
+      if (['Shift', 'Control', 'Alt', 'AltGraph', 'Meta', 'CapsLock', 'Tab', 'Dead', 'Escape'].includes(e.key)) {
+        return;
+      }
+
+      const char = e.key;
+
+      if (char === 'Backspace') {
+        if (state.typed.length > 0) {
+          state.typed = state.typed.slice(0, -1);
+          if (state.typed.length === 0 && PHASES_DATA[state.phaseIdx].multiWord) {
+            state.targetedWord = null;
+            updateWordHighlights();
+          }
+          updateTypedUI();
+        }
+        return;
+      }
+
+      // Apenas caracteres unitários
+      if (char.length !== 1) return;
+
+      const phase = PHASES_DATA[state.phaseIdx];
+
+      // FASES 1 A 7: Palavra única
+      if (!phase.multiWord) {
+        if (!state.targetedWord && state.activeWords.length > 0) {
+          state.targetedWord = state.activeWords[0];
+        }
+        if (!state.targetedWord) return;
+
+        const target = state.targetedWord.text;
+        const nextTyped = state.typed + char.toLowerCase();
+
+        if (target.toLowerCase().startsWith(nextTyped)) {
+          state.typed = nextTyped;
+          state.correctChars++;
+          updateTypedUI();
+
+          if (state.typed === target.toLowerCase()) {
+            completeWord(state.targetedWord);
+          }
+        } else {
+          // 1.2 A: Manter reset da palavra ao errar conforme solicitado
+          state.totalErrors++;
+          AUDIO.play('wrong');
+          state.combo = 0;
+          updateComboUI();
+          state.score = Math.max(0, state.score - 2);
+          UI.game.score.textContent = state.score;
+          state.typed = "";
+          updateTypedUI();
+
+          if (state.targetedWord && state.targetedWord.element) {
+            state.targetedWord.element.style.backgroundColor = '#e53e3e';
+            setTimeout(() => {
+              if (state.targetedWord && state.targetedWord.element) {
+                state.targetedWord.element.style.backgroundColor = '';
+              }
+            }, 120);
+          }
+        }
+        return;
+      }
+
+      // FASE 8: Tempestade Multitarefa
+      if (state.targetedWord) {
+        const target = state.targetedWord.text;
+        const nextTyped = state.typed + char.toLowerCase();
+
+        if (target.toLowerCase().startsWith(nextTyped)) {
+          state.typed = nextTyped;
+          state.correctChars++;
+          updateTypedUI();
+
+          if (state.typed === target.toLowerCase()) {
+            completeWord(state.targetedWord);
+          }
+        } else {
+          // Erro na palavra travada: reseta digitação e destrava alvo (1.2 A mantido)
+          state.totalErrors++;
+          AUDIO.play('wrong');
+          state.combo = 0;
+          updateComboUI();
+          state.score = Math.max(0, state.score - 2);
+          UI.game.score.textContent = state.score;
+          
+          if (state.targetedWord && state.targetedWord.element) {
+            state.targetedWord.element.style.backgroundColor = '#e53e3e';
+            setTimeout(() => {
+              if (state.targetedWord && state.targetedWord.element) {
+                state.targetedWord.element.style.backgroundColor = '';
+              }
+            }, 120);
+          }
+
+          state.typed = "";
+          state.targetedWord = null;
+          updateWordHighlights();
+          updateTypedUI();
+        }
+      } else {
+        // Jogador mira na 1ª letra de qualquer palavra caindo
+        const candidates = state.activeWords.filter(w => w.text.toLowerCase().startsWith(char.toLowerCase()));
+        if (candidates.length > 0) {
+          // Escolhe o alvo mais baixo (mais perto do perigo)
+          candidates.sort((a, b) => b.y - a.y);
+          const chosen = candidates[0];
+          state.targetedWord = chosen;
+          state.typed = char.toLowerCase();
+          state.correctChars++;
+          AUDIO.play('correct');
+          updateWordHighlights();
+          updateTypedUI();
+
+          if (state.typed === chosen.text.toLowerCase()) {
+            completeWord(chosen);
+          }
+        } else {
+          state.totalErrors++;
+          AUDIO.play('wrong');
+          state.combo = 0;
+          updateComboUI();
+          state.score = Math.max(0, state.score - 2);
+          UI.game.score.textContent = state.score;
+        }
+      }
+    }
+
+    function updateWordHighlights() {
+      const phase = PHASES_DATA[state.phaseIdx];
+      state.activeWords.forEach(w => {
+        if (!w.element) return;
+        if (phase && phase.multiWord) {
+          if (state.targetedWord && state.targetedWord.id === w.id) {
+            w.element.classList.add('target-locked');
+            w.element.classList.remove('target-other');
+          } else if (state.targetedWord) {
+            w.element.classList.remove('target-locked');
+            w.element.classList.add('target-other');
+          } else {
+            w.element.classList.remove('target-locked', 'target-other');
+          }
+        } else {
+          w.element.classList.remove('target-locked', 'target-other');
+        }
+      });
+    }
+
+    function updateTypedUI() {
+      if (state.targetedWord) {
+        const target = state.targetedWord.text;
+        let html = "";
+        for (let i = 0; i < target.length; i++) {
+          if (i < state.typed.length) html += `<span class="text-green-500 font-bold">${target[i]}</span>`;
+          else html += `<span class="text-gray-400">${target[i]}</span>`;
+        }
+        UI.game.input.innerHTML = html;
+
+        if (state.targetedWord.element) {
+          let fallingHtml = "";
+          for (let i = 0; i < target.length; i++) {
+            if (i < state.typed.length) fallingHtml += `<span class="typed-correct-char">${target[i]}</span>`;
+            else fallingHtml += target[i];
+          }
+          state.targetedWord.element.innerHTML = fallingHtml;
+        }
+      } else {
+        const phase = PHASES_DATA[state.phaseIdx];
+        if (phase && phase.multiWord) {
+          UI.game.input.innerHTML = `<span class="text-xs text-gray-400 font-sans tracking-wide">DIGITE A 1ª LETRA DE UMA PALAVRA</span>`;
+        } else {
+          UI.game.input.innerHTML = "";
+        }
+      }
+    }
+
+    function completeWord(wordObj) {
+      AUDIO.play('correct');
+
+      state.combo++;
+      if (state.combo > state.maxCombo) {
+        state.maxCombo = state.combo;
+      }
+      updateComboUI();
+
+      // Cálculo de pontuação com bônus de velocidade e multiplicador de combo
+      const basePoints = wordObj.text.length * 10;
+      const timeTaken = Date.now() - wordObj.spawnTime;
+      const speedBonus = Math.max(0, Math.floor((5000 - timeTaken) / 100));
+      const modeMultiplier = (state.mode === 'expert' ? 2 : 1);
+      const comboMultiplier = 1 + Math.min(state.combo * 0.1, 1.5);
+
+      const totalGain = Math.round((basePoints + speedBonus) * modeMultiplier * comboMultiplier);
+      state.score += totalGain;
+      UI.game.score.textContent = state.score;
+
+      // Juiciness: Floating Text e Partículas
+      if (wordObj.element) {
+        const rect = wordObj.element.getBoundingClientRect();
+        const playRect = UI.game.playArea.getBoundingClientRect();
+        const relX = rect.left - playRect.left + (rect.width / 2);
+        const relY = rect.top - playRect.top;
+
+        let popupText = `+${totalGain}`;
+        let popupColor = '#38a169';
+        if (state.combo >= 3) {
+          popupText = `+${totalGain} (x${state.combo} 🔥)`;
+          popupColor = '#f59e0b';
+        }
+        showFloatingText(popupText, relX, relY, popupColor);
+        spawnParticles(relX, relY + rect.height / 2);
+      }
+
+      UI.game.message.textContent = `Boa! +${totalGain} pontos!`;
+      UI.game.message.style.color = '#38a169';
+
+      state.completedInPhase++;
+
+      if (wordObj.element) wordObj.element.remove();
+      state.activeWords = state.activeWords.filter(w => w.id !== wordObj.id);
+
+      if (state.targetedWord && state.targetedWord.id === wordObj.id) {
+        state.targetedWord = null;
+        state.typed = "";
+        updateTypedUI();
+      }
+      updateWordHighlights();
+
+      const phase = PHASES_DATA[state.phaseIdx];
+      if (state.completedInPhase >= phase.count && state.activeWords.length === 0) {
+        goToNextPhase();
+        return;
+      }
+
+      if (!phase.multiWord) {
+        setTimeout(() => {
+          if (state.active && state.activeWords.length === 0) {
+            spawnItem();
+          }
+        }, 350);
+      }
+    }
+
+    function goToNextPhase() {
+      state.active = false;
+      cancelAnimationFrame(state.loopId);
+      state.loopId = null;
+      
+      state.phaseIdx++;
+      if (state.phaseIdx >= PHASES_DATA.length) {
+        endGame(true);
+        return;
+      }
+
+      const nextPhase = PHASES_DATA[state.phaseIdx];
+      
+      if (state.studyMode) {
+        endGame(true);
+        return;
+      }
+
+      UI.trans.name.textContent = nextPhase.name;
+      UI.trans.desc.textContent = nextPhase.desc;
+      
+      showScreen('transition');
+      AUDIO.play('phase');
+
+      let count = 5;
+      UI.trans.timer.textContent = count;
+      const interval = setInterval(() => {
+        count--;
+        UI.trans.timer.textContent = count;
+        if (count <= 0) {
+          clearInterval(interval);
+          state.active = true;
+          state.completedInPhase = 0;
+          showScreen('game');
+          startPhase();
+        }
+      }, 1000);
+    }
+
+    function endGame(victory = false) {
+      state.active = false;
+      cancelAnimationFrame(state.loopId);
+      state.loopId = null;
+      if (state.spawnId) clearTimeout(state.spawnId);
+      
+      const { wpm, accuracy } = calculateTelemetry();
+
+      UI.over.score.textContent = state.score;
+      if (UI.over.wpm) UI.over.wpm.textContent = `${wpm} PPM`;
+      if (UI.over.accuracy) UI.over.accuracy.textContent = `${accuracy}%`;
+      if (UI.over.combo) UI.over.combo.textContent = `x${state.maxCombo}`;
+
+      UI.over.title.textContent = victory ? "DESAFIO CONCLUÍDO! 🏆" : "FIM DE JOGO! 💀";
+      UI.over.title.className = `text-4xl font-black mb-2 ${victory ? 'text-green-600' : 'text-red-600'}`;
+      UI.over.msg.textContent = victory ? "Você é um verdadeiro mestre da digitação! Seu nome ficará na história." : "Não desanime! Cada erro é um degrau para o aperfeiçoamento.";
+      
+      if (state.studyMode) {
+        UI.over.title.textContent = "TREINO CONCLUÍDO! 📖";
+        UI.over.msg.textContent = "Excelente treino! No Modo Estudo as pontuações não são gravadas no ranking.";
+        UI.over.rankingForm.classList.add('hidden');
+      } else {
+        UI.over.rankingForm.classList.remove('hidden');
+      }
+
+      showScreen('gameover');
+      carregarRanking();
+    }
+
+    // ==========================================
+    // 7. RANKING E API COM VALIDAÇÃO (1.1)
+    // ==========================================
+    
+    function carregarRanking() {
+      fetch("listar_ranking_final.php")
+        .then(res => res.json())
+        .then(data => {
+          const list = data.slice(0, 10).map(item => `
+            <div class="ranking-item">
+              <span class="font-bold">
+                ${item.modo === 'expert' ? '👑' : '🌱'} ${item.nome}
+              </span>
+              <span class="text-indigo-600 font-mono">${item.pontos}</span>
+            </div>
+          `).join('');
+          UI.game.ranking.innerHTML = list || "<p class='text-xs text-gray-400'>Nenhum registro ainda...</p>";
+        });
+    }
+
+    function salvarPlacar() {
+      const rawNome = UI.over.nameInput.value.trim();
+      const nome = rawNome.replace(/[<>\/\\'"&;]/g, '').substring(0, 15);
+      if (!nome) { alert("Digite seu nome ou apelido!"); return; }
+
+      const safeScore = Math.max(0, parseInt(state.score, 10) || 0);
+      const safeFase = Math.min(PHASES_DATA.length, Math.max(1, parseInt(state.phaseIdx + 1, 10) || 1));
+      const safeModo = state.mode === 'expert' ? 'expert' : 'beginner';
+
+      const btn = document.getElementById('btn-save-score');
+      btn.disabled = true;
+      btn.textContent = "...";
+
+      fetch("salvar_ranking_final.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `nome=${encodeURIComponent(nome)}&pontos=${safeScore}&modo=${safeModo}&fase=${safeFase}`
+      })
+      .then(() => {
+        UI.over.rankingForm.innerHTML = "<div class='bg-green-100 text-green-700 p-3 rounded-xl font-bold'>✓ Placar salvo no ranking!</div>";
+        carregarRanking();
+      })
+      .catch(() => {
+        btn.disabled = false;
+        btn.textContent = "SALVAR";
+        alert("Erro ao conectar com o servidor.");
+      });
+    }
+
+    // ==========================================
+    // 7. EVENT LISTENERS
+    // ==========================================
+    
+    document.getElementById('btn-start').addEventListener('click', initGame);
+    document.getElementById('btn-quit').addEventListener('click', () => { if(confirm('Sair do jogo?')) endGame(false); });
+    document.getElementById('btn-restart').addEventListener('click', initGame);
+    document.getElementById('btn-back-menu').addEventListener('click', () => location.reload());
+    document.getElementById('btn-save-score').addEventListener('click', salvarPlacar);
+    document.addEventListener('keydown', handleKeydown);
+
+    // Botoes de Ranking e Sobre
+    const openRanking = () => window.open('ranking_completo_final.php', '_blank');
+    document.getElementById('btn-view-ranking-menu').addEventListener('click', openRanking);
+    document.getElementById('btn-view-ranking-end').addEventListener('click', openRanking);
+    
+    document.getElementById('btn-about-menu').addEventListener('click', () => showScreen('about'));
+    document.getElementById('btn-back-from-about').addEventListener('click', () => showScreen('menu'));
+
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.mode-btn').forEach(b => {
+          b.classList.remove('border-indigo-600', 'bg-indigo-50/80', 'shadow-md');
+          b.classList.add('border-gray-200', 'bg-white');
+          const indicator = b.querySelector('.mode-indicator');
+          if (indicator) {
+            indicator.className = 'mode-indicator w-3.5 h-3.5 rounded-full bg-transparent border-2 border-gray-300';
+          }
+        });
+        btn.classList.add('border-indigo-600', 'bg-indigo-50/80', 'shadow-md');
+        btn.classList.remove('border-gray-200', 'bg-white');
+        const activeIndicator = btn.querySelector('.mode-indicator');
+        if (activeIndicator) {
+          activeIndicator.className = 'mode-indicator w-3.5 h-3.5 rounded-full bg-indigo-600 ring-4 ring-indigo-200';
+        }
+        state.mode = btn.dataset.mode;
+      });
+    });
+
+    document.getElementById('btn-sound-menu').addEventListener('click', function() {
+      state.sound = !state.sound;
+      this.innerHTML = state.sound ? "🔊 SOM: LIGADO" : "🔇 SOM: DESLIGADO";
+    });
+
+    document.getElementById('btn-sound-game').addEventListener('click', function() {
+      state.sound = !state.sound;
+      this.textContent = state.sound ? "🔊 SOM: LIGADO" : "🔇 SOM: DESLIGADO";
+      // Sincronizar com o menu
+      document.getElementById('btn-sound-menu').innerHTML = this.textContent;
+    });
+
+    // Modo Estudo
+    document.getElementById('btn-study-mode').addEventListener('click', () => {
+      renderStudyPhases();
+      showScreen('study');
+    });
+    document.getElementById('btn-back-study').addEventListener('click', () => showScreen('menu'));
+
+    function renderStudyPhases() {
+      const list = document.getElementById('study-phases-list');
+      list.innerHTML = PHASES_DATA.map(phase => `
+        <div class="bg-white p-4 rounded-xl border-2 border-gray-100 hover:border-orange-300 transition-all">
+          <h4 class="font-bold text-lg text-indigo-700">${phase.name}</h4>
+          <p class="text-xs text-gray-500 mb-3">${phase.desc}</p>
+          <button onclick="startStudyPhase(${phase.id})" class="btn bg-orange-500 text-white w-full py-2 text-sm">PRATICAR ESTA FASE</button>
+        </div>
+      `).join('');
+    }
+
+    // Iniciar
+    carregarRanking();
+
+    // Auto-recuperação de imagens quebradas após renderização do DOM
+    window.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('img').forEach(img => {
+        const src = img.getAttribute('src') || '';
+        const name = src.split('/').pop().split('?')[0];
+        if (typeof SODIPROM_ASSETS !== 'undefined' && SODIPROM_ASSETS[name]) {
+          if (!img.complete || img.naturalWidth === 0) {
+            img.src = SODIPROM_ASSETS[name];
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
