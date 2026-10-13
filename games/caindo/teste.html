@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Jogo de Digitação com Fases</title>
+
+  <!-- Fonte + Tailwind -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Tone.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    #main-layout {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      height: 100%;
+      padding: 15px;
+      gap: 15px;
+      box-sizing: border-box;
+    }
+    #play-area {
+      flex: 3;
+      height: calc(100vh - 30px);
+      background-color: #edf2f7;
+      border: 3px dashed #A0AEC0;
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.08);
+      box-sizing: border-box;
+    }
+    #controls-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 15px;
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+      height: calc(100vh - 30px);
+      box-sizing: border-box;
+      text-align: center;
+      overflow-y: auto;
+    }
+    h1 {
+      color: #5A67D8;
+      font-weight: 700;
+      margin: 0;
+      font-size: 2.25rem;
+    }
+    #stats-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+      padding: 15px;
+      background-color: #f7fafc;
+      border-radius: 10px;
+      font-size: 1.2em;
+      font-weight: 600;
+      width: 100%;
+    }
+    #score { color: #38A169; }
+    #level { color: #DD6B20; }
+    #message-area {
+      font-size: 1.2em;
+      font-weight: 600;
+      min-height: 60px;
+    }
+    #input-display-area {
+      padding: 12px;
+      background-color: #f7fafc;
+      border-radius: 10px;
+      min-height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #current-input { font-weight: 600; color: #5A67D8; font-size: 1.25em; }
+
+    .falling-item {
+      position: absolute;
+      padding: 10px 18px;
+      background-color: #4299e1;
+      color: white;
+      border-radius: 8px;
+      font-size: 1.5em;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      border-bottom: 3px solid rgba(0,0,0,0.1);
+      animation: fallIn 0.3s ease-out;
+    }
+    @keyframes fallIn {
+      0% { transform: translateY(-50px) scale(0.8); opacity: 0; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    #start-button, #sound-toggle-button, #project-link-button {
+      color: white;
+      padding: 14px 30px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #start-button {
+      background-image: linear-gradient(to right, #48bb78 0%, #38a169 100%);
+      font-size: 1.3em;
+    }
+    #start-button:hover { transform: translateY(-2px); }
+    #start-button:disabled { background-color: #a0aec0; cursor: not-allowed; }
+    #sound-toggle-button { background-color: #5a67d8; }
+    #sound-toggle-button:hover { background-color: #4c51bf; }
+    #project-link-button { background-color: #3182ce; gap: 8px; }
+    #project-link-button:hover { background-color: #2b6cb0; }
+
+    .typed-correct-char { color: #c6f6d5; font-weight: 700; }
+    .typed-incorrect-char { color: #fed7d7; text-decoration: line-through; font-weight: 700; }
+
+    /* Ranking (segue a estética do painel) */
+    #ranking-area h2 { margin-bottom: 6px; }
+    #ranking-list li { padding: 2px 0; }
+
+    @media (max-width: 850px) {
+      html, body { height: auto; overflow: auto; }
+      #main-layout { flex-direction: column; height: auto; }
+      #play-area { height: 50vh; min-height: 300px; }
+      #controls-panel { height: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div id="main-layout">
+    <div id="play-area"></div>
+
+    <div id="controls-panel">
+      <h1 class="text-3xl md:text-4xl">Jogo de Digitação</h1>
+
+      <div id="stats-bar">
+        <div id="score">Pontos: 0</div>
+        <div id="level">Pronto?</div>
+      </div>
+
+      <div id="message-area" class="text-purple-700">
+        Clique em Start para começar a aventura!
+      </div>
+
+      <div id="input-display-area">
+        <span class="text-gray-600 mr-2">Digitando:</span>
+        <span id="current-input"></span>
+      </div>
+
+      <button id="start-button">Start</button>
+      <button id="sound-toggle-button">Ativar Som</button>
+
+      <a id="project-link-button" href="https://projetomanancial.com.br" target="_blank" rel="noopener noreferrer">
+        <span>Projeto Manancial</span>
+      </a>
+
+      <!-- Ranking -->
+      <div id="ranking-area" class="mt-6 text-left">
+        <h2 class="text-xl font-bold text-purple-700">🏆 Ranking</h2>
+        <ol id="ranking-list" class="list-decimal list-inside text-gray-700"></ol>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================
+    // ELEMENTOS / ESTADO
+    // =========================
+    const scoreDisplay = document.getElementById('score');
+    const levelDisplay = document.getElementById('level');
+    const playArea = document.getElementById('play-area');
+    const currentInputDisplay = document.getElementById('current-input');
+    const messageArea = document.getElementById('message-area');
+    const startButton = document.getElementById('start-button');
+    const soundToggleButton = document.getElementById('sound-toggle-button');
+    const rankingList = document.getElementById('ranking-list');
+
+    let gameActive = false;
+    let currentPhaseIndex = 0;
+    let itemsCompletedInPhase = 0;
+    let score = 0;
+    let typedString = "";
+    let currentFallingItemElement = null;
+    let currentItemText = "";
+    let fallSpeed = 1.0;
+    let baseFallSpeedForPhase = 1.0;
+    let gameLoopId = null;
+    let spawnTimeoutId = null;
+
+    const speedIncrementPerSuccess = 0.03;
+    const maxSpeedBonusInPhase = 0.4;
+
+    // =========================
+    // ÁUDIO (Tone.js)
+    // =========================
+    let isSoundOn = false;
+
+    const musicSynth = new Tone.Synth({
+      oscillator: { type: 'triangle8' },
+      envelope: { attack: 0.005, decay: 0.1, sustain: 0.3, release: 1 }
+    }).toDestination();
+    musicSynth.volume.value = -18;
+
+    const melody = new Tone.Sequence((time, note) => {
+      musicSynth.triggerAttackRelease(note, '8n', time);
+    }, ['C4','E4','G4','B4','A4','G4','E4','D4'], '4n');
+
+    const sfxCorrect  = new Tone.Synth({ oscillator: { type: 'sine'    }, envelope: { attack: 0.01, release: 0.2 } }).toDestination();
+    const sfxIncorrect= new Tone.Synth({ oscillator: { type: 'square'  }, envelope: { attack: 0.01, release: 0.2 } }).toDestination();
+    const sfxPhaseUp  = new Tone.Synth({ oscillator: { type: 'triangle'}, envelope: { attack: 0.01, release: 0.4 } }).toDestination();
+    sfxCorrect.volume.value   = -10;
+    sfxIncorrect.volume.value = -10;
+    sfxPhaseUp.volume.value   = -8;
+
+    function toggleSound() {
+      isSoundOn = !isSoundOn;
+      if (isSoundOn) {
+        Tone.start();
+        Tone.Destination.mute = false;
+        soundToggleButton.textContent = "Desativar Som";
+        soundToggleButton.style.backgroundColor = "#c53030";
+        if (gameActive) Tone.Transport.start();
+      } else {
+        Tone.Destination.mute = true;
+        soundToggleButton.textContent = "Ativar Som";
+        soundToggleButton.style.backgroundColor = "#5a67d8";
+        Tone.Transport.pause();
+      }
+    }
+
+    soundToggleButton.addEventListener('click', toggleSound);
+
+    // =========================
+    // FASES
+    // =========================
+    const phases = [
+      { name: "Fase 1: Letras",
+        items: ['a','s','d','f','g','h','j','k','l','q','w','e','r','t','y','u','i','o','p','z','x','c','v','b','n','m'],
+        numChallengesInPhase: 10, baseFallSpeed: 1.2 },
+      { name: "Fase 2: 2 Letras",
+        items: ['ir','em','de','do','da','eu','tu','no','na','um','se','ja','vi','oi','ai'],
+        numChallengesInPhase: 10, baseFallSpeed: 1.3 },
+      { name: "Fase 3: 3 Letras",
+        items: ['sol','lua','rei','mar','paz','luz','cor','som','ver','ser','bom','dia','sal','rua','ler'],
+        numChallengesInPhase: 10, baseFallSpeed: 1.4 },
+      { name: "Fase 4: 4 Letras",
+        items: ['casa','gato','amor','vida','flor','fogo','agua','doce','frio','novo','livro','azul'],
+        numChallengesInPhase: 10, baseFallSpeed: 1.5 },
+      { name: "Fase 5: 5 Letras",
+        items: ['festa','verde','feliz','vento','pedra','chuva','calor','forte','sonho','letra','jogar'],
+        numChallengesInPhase: 10, baseFallSpeed: 1.6 },
+      { name: "Fase 6: 6 Letras",
+        items: ['rapido','escola','brasil','amigo','futuro','musica','janela','viagem','beleza'],
+        numChallengesInPhase: 10, baseFallSpeed: 1.7 },
+      { name: "Fase 7: Acentos",
+        items: ['céu','mãe','pão','café','sofá','você','ótimo','música','coração','pássaro','manhã','lição'],
+        numChallengesInPhase: 10, baseFallSpeed: 1.5 }
+    ];
+
+    // =========================
+    // UI / LOOP
+    // =========================
+    function updatePhaseDisplay() {
+      if (gameActive && currentPhaseIndex < phases.length) {
+        const currentPhase = phases[currentPhaseIndex];
+        levelDisplay.textContent = `${currentPhase.name} (${itemsCompletedInPhase}/${currentPhase.numChallengesInPhase})`;
+      } else if (!gameActive && itemsCompletedInPhase === 0 && currentPhaseIndex === 0) {
+        levelDisplay.textContent = "Pronto para o Desafio?";
+      }
+    }
+
+    function startGame() {
+      if (isSoundOn) {
+        Tone.start();
+        Tone.Transport.start();
+        melody.start(0);
+      }
+
+      gameActive = true;
+      score = 0;
+      currentPhaseIndex = 0;
+      itemsCompletedInPhase = 0;
+      typedString = "";
+
+      const initialPhase = phases[currentPhaseIndex];
+      baseFallSpeedForPhase = initialPhase.baseFallSpeed;
+      fallSpeed = baseFallSpeedForPhase;
+
+      scoreDisplay.textContent = `Pontos: ${score}`;
+      updatePhaseDisplay();
+      currentInputDisplay.textContent = "";
+      messageArea.textContent = "Começando...";
+      messageArea.style.color = '#5A67D8';
+      startButton.disabled = true;
+
+      if (spawnTimeoutId) clearTimeout(spawnTimeoutId);
+      if (currentFallingItemElement) {
+        currentFallingItemElement.remove();
+        currentFallingItemElement = null;
+      }
+
+      document.addEventListener('keydown', handleKeydown);
+      spawnItem();
+
+      if (gameLoopId) cancelAnimationFrame(gameLoopId);
+      gameLoop();
+    }
+
+    startButton.addEventListener('click', startGame);
+
+    function spawnItem() {
+      if (currentFallingItemElement) {
+        currentFallingItemElement.remove();
+        currentFallingItemElement = null;
+      }
+
+      const currentPhase = phases[currentPhaseIndex];
+      if (itemsCompletedInPhase >= currentPhase.numChallengesInPhase) {
+        currentPhaseIndex++;
+        itemsCompletedInPhase = 0;
+
+        if (currentPhaseIndex >= phases.length) {
+          endGame();
+          return;
+        } else {
+          const nextPhase = phases[currentPhaseIndex];
+          baseFallSpeedForPhase = nextPhase.baseFallSpeed;
+          fallSpeed = baseFallSpeedForPhase;
+          messageArea.textContent = "Excelente! Próxima Fase!";
+          messageArea.style.color = '#38A169';
+          if (isSoundOn) sfxPhaseUp.triggerAttackRelease('C5', '0.4s');
+        }
+      }
+
+      updatePhaseDisplay();
+
+      const itemsForCurrentPhase = phases[currentPhaseIndex].items;
+      currentItemText = itemsForCurrentPhase[Math.floor(Math.random()*itemsForCurrentPhase.length)];
+
+      const itemDiv = document.createElement('div');
+      itemDiv.classList.add('falling-item');
+      itemDiv.textContent = currentItemText;
+      playArea.appendChild(itemDiv);
+
+      const itemWidth = itemDiv.offsetWidth;
+      const maxLeft = Math.max(0, playArea.offsetWidth - itemWidth - 20);
+      itemDiv.style.left = Math.max(10, Math.random() * maxLeft) + 'px';
+      itemDiv.style.top = '0px';
+      itemDiv.style.backgroundColor = '#4299e1';
+
+      currentFallingItemElement = itemDiv;
+      typedString = "";
+      currentInputDisplay.textContent = "";
+    }
+
+    function gameLoop() {
+      if (!gameActive) return;
+
+      if (currentFallingItemElement) {
+        let topPos = parseInt(currentFallingItemElement.style.top);
+        topPos += fallSpeed;
+        currentFallingItemElement.style.top = topPos + 'px';
+
+        if (topPos + currentFallingItemElement.offsetHeight >= playArea.offsetHeight) {
+          messageArea.textContent = `Ops! Perdeu: "${currentItemText}"`;
+          messageArea.style.color = '#E53E3E';
+          if (isSoundOn) sfxIncorrect.triggerAttackRelease('C2', '0.2s');
+
+          score -= 10;
+          scoreDisplay.textContent = `Pontos: ${score}`;
+          typedString = "";
+          currentInputDisplay.textContent = "";
+
+          if (spawnTimeoutId) clearTimeout(spawnTimeoutId);
+          if (currentFallingItemElement) {
+            currentFallingItemElement.remove();
+            currentFallingItemElement = null;
+          }
+          spawnTimeoutId = setTimeout(spawnItem, 1000);
+        }
+      }
+
+      gameLoopId = requestAnimationFrame(gameLoop);
+    }
+
+    function handleKeydown(event) {
+      if (!gameActive || !currentFallingItemElement) return;
+
+      const key = event.key;
+      const targetItem = currentItemText;
+
+      // Permite Enter (confirma) e ignora teclas de controle comuns
+      if (key === 'Enter' && typedString === targetItem) {
+        processCorrectItem(targetItem);
+        return;
+      }
+      if (key === 'Backspace' || key.length !== 1 || !key.match(/[a-zà-úÀ-Ú0-9çÇ]/i)) {
+        return;
+      }
+
+      const newTypedString = typedString + key.toLowerCase();
+
+      if (targetItem.startsWith(newTypedString)) {
+        typedString = newTypedString;
+      } else {
+        // erro: zera a digitação (mantendo comportamento original)
+        typedString = "";
+        if (isSoundOn) sfxIncorrect.triggerAttackRelease('A2', '0.2s');
+        score -= 5;
+        scoreDisplay.textContent = `Pontos: ${score}`;
+
+        // feedback visual rápido
+        if (currentFallingItemElement) {
+          currentFallingItemElement.style.backgroundColor = '#E53E3E';
+          setTimeout(() => {
+            if (currentFallingItemElement) currentFallingItemElement.style.backgroundColor = '#4299e1';
+          }, 150);
+        }
+      }
+
+      currentInputDisplay.textContent = typedString;
+      updateFallingItemAppearance(targetItem);
+
+      if (typedString === targetItem) {
+        processCorrectItem(targetItem);
+      }
+    }
+
+    function updateFallingItemAppearance(targetText) {
+      if (!currentFallingItemElement) return;
+
+      // destaca os caracteres já digitados (correto) e o resto normal
+      let html = "";
+      for (let i = 0; i < targetText.length; i++) {
+        const ch = targetText[i];
+        if (i < typedString.length) {
+          // como zeramos no erro, o prefixo aqui é sempre correto
+          html += `<span class="typed-correct-char">${ch}</span>`;
+        } else {
+          html += ch;
+        }
+      }
+      currentFallingItemElement.innerHTML = html;
+    }
+
+    function processCorrectItem(targetItem) {
+      if (isSoundOn) sfxCorrect.triggerAttackRelease('C5', '0.1s');
+
+      const positionBonus = Math.floor((playArea.offsetHeight - parseInt(currentFallingItemElement.style.top)) / 10);
+      const basePoints = targetItem.length * 10;
+      const totalPoints = basePoints + positionBonus;
+
+      score += totalPoints;
+      scoreDisplay.textContent = `Pontos: ${score}`;
+
+      messageArea.textContent = `+${totalPoints} (${targetItem})!`;
+      messageArea.style.color = '#38A169';
+
+      if (currentFallingItemElement) {
+        currentFallingItemElement.style.backgroundColor = '#38A169';
+        currentFallingItemElement.style.transform = 'scale(1.1) rotate(5deg)';
+        setTimeout(() => {
+          if (currentFallingItemElement) currentFallingItemElement.remove();
+          currentFallingItemElement = null;
+        }, 180);
+      }
+
+      itemsCompletedInPhase++;
+
+      const currentSpeedBonus = (itemsCompletedInPhase * speedIncrementPerSuccess);
+      fallSpeed = baseFallSpeedForPhase + Math.min(currentSpeedBonus, maxSpeedBonusInPhase);
+
+      updatePhaseDisplay();
+      typedString = "";
+      currentInputDisplay.textContent = "";
+
+      if (spawnTimeoutId) clearTimeout(spawnTimeoutId);
+      spawnTimeoutId = setTimeout(spawnItem, 400);
+    }
+
+    function endGame() {
+      if (isSoundOn) {
+        Tone.Transport.stop();
+        melody.stop();
+      }
+
+      gameActive = false;
+
+      if (gameLoopId) cancelAnimationFrame(gameLoopId);
+      if (spawnTimeoutId) clearTimeout(spawnTimeoutId);
+      document.removeEventListener('keydown', handleKeydown);
+
+      if (currentFallingItemElement) {
+        currentFallingItemElement.remove();
+        currentFallingItemElement = null;
+      }
+
+      // Ranking: pergunta nome e envia
+      let nome = prompt("Digite seu nome para o ranking:");
+      if (nome) {
+        fetch("salvar_ranking.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: `nome=${encodeURIComponent(nome)}&pontos=${score}`
+        }).then(() => carregarRanking())
+          .catch(() => carregarRanking()); // tenta carregar mesmo se falhar o POST (para não travar a UI)
+      }
+
+      messageArea.textContent = `Fim de Jogo! Pontuação Final: ${score}`;
+      messageArea.style.color = '#7B341E';
+      startButton.disabled = false;
+
+      const totalPhases = phases.length;
+      levelDisplay.textContent = `Todas as ${totalPhases} fases completas!`;
+
+      currentPhaseIndex = 0;
+      itemsCompletedInPhase = 0;
+      typedString = "";
+      currentItemText = "";
+    }
+
+    // =========================
+    // RANKING (PHP + MySQL)
+    // =========================
+    function carregarRanking() {
+      fetch("listar_ranking.php")
+        .then(res => res.json())
+        .then(data => {
+          rankingList.innerHTML = "";
+          data.forEach((item, idx) => {
+            const li = document.createElement("li");
+            // simples e limpo; se quiser, dá pra incluir medalhas depois
+            li.textContent = `${item.nome} - ${item.pontos} pontos`;
+            rankingList.appendChild(li);
+          });
+        })
+        .catch(err => {
+          console.error("Erro ao carregar ranking:", err);
+        });
+    }
+
+    // carregar ranking ao abrir a página
+    carregarRanking();
+  </script>
+</body>
+</html>

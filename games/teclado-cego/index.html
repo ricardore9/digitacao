@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mestre do Teclado Cego | SODIPROM - CAMP Diadema</title>
+  <meta name="description" content="Treinador ergonômico de digitação ABNT2 sem olhar para o teclado. Exclusivo para os Jovens Aprendizes da SODIPROM - CAMP Diadema.">
+  
+  <link rel="icon" type="image/png" href="img/logo-icon-sodiprom.png">
+  <link rel="stylesheet" href="css/style.css">
+  
+  <style>
+    .hidden { display: none !important; }
+  </style>
+  
+  <!-- Helper para fallback de imagens caso o servidor tenha caminhos relativos -->
+  <script>
+    function fallbackImg(img, fallbackSrc) {
+      if (!img.dataset.retried) {
+        img.dataset.retried = 'true';
+        img.src = '../' + fallbackSrc;
+      }
+    }
+  </script>
+</head>
+<body>
+
+  <!-- ==================================================== -->
+  <!-- CABEÇALHO INSTITUCIONAL SODIPROM                     -->
+  <!-- ==================================================== -->
+  <header class="app-header">
+    <div class="brand-section">
+      <a href="https://sodiprom.com.br" target="_blank" rel="noopener noreferrer" class="brand-logo-wrap" title="Ir para o site da SODIPROM">
+        <img src="img/sodiprom-logo.png" onerror="fallbackImg(this, 'sodiprom-logo.png')" alt="SODIPROM" class="brand-logo-img">
+        <img src="img/sodiprom-logo50anos.png" onerror="fallbackImg(this, 'sodiprom-logo50anos.png')" alt="SODIPROM 50 Anos" class="brand-logo-img" style="height: 32px;">
+      </a>
+      <div class="brand-divider"></div>
+      <div class="game-title-group">
+        <h1>Mestre do Teclado Cego</h1>
+        <p>Treinador Ergonômico de Digitação ABNT2 • Postura & Técnica</p>
+      </div>
+    </div>
+
+    <div class="header-controls">
+      <button class="btn-header" id="btn-sound-toggle" onclick="gameInstance.toggleSound()" title="Ativar/Desativar Sons">
+        🔊 <span>Som</span>
+      </button>
+
+      <button class="btn-header btn-accent" onclick="gameInstance.openLessonsModal()" title="Escolher Nível / Lição">
+        🗺️ <span>Escolher Lição</span>
+      </button>
+
+      <a href="../digita/index.html" class="btn-header" title="Ir para o Desafio de Digitação">
+        <span>🔤</span> <span>Desafio de Digitação</span>
+      </a>
+
+      <a href="../index.html" class="btn-header" title="Voltar para o Portal Central de Jogos">
+        <span>🏠</span> <span>Portal de Jogos</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- ==================================================== -->
+  <!-- PALCO PRINCIPAL DO JOGO                             -->
+  <!-- ==================================================== -->
+  <main class="main-stage">
+
+    <!-- BARRA DE STATUS / HUD -->
+    <section class="hud-bar" aria-label="Estatísticas da Partida">
+      <!-- Informações da Lição Atual -->
+      <div class="hud-card">
+        <span class="lesson-info-tag" id="lesson-tag">Nível 1: Postura & Linha Guia</span>
+        <h2 class="lesson-info-title" id="lesson-title">Teclas de Ancoragem (F e J)</h2>
+      </div>
+
+      <!-- Velocidade WPM -->
+      <div class="hud-card">
+        <span class="stat-label">Velocidade</span>
+        <div class="stat-value val-emerald">
+          <span id="stat-wpm">0</span>
+          <span class="stat-unit">WPM</span>
+        </div>
+      </div>
+
+      <!-- Precisão (%) -->
+      <div class="hud-card">
+        <span class="stat-label">Precisão</span>
+        <div class="stat-value val-indigo">
+          <span id="stat-accuracy">100</span>
+          <span class="stat-unit">%</span>
+        </div>
+      </div>
+
+      <!-- Combo de Acertos -->
+      <div class="hud-card">
+        <span class="stat-label">Sequência</span>
+        <div class="stat-value val-gold">
+          <span id="stat-combo">0</span>
+          <span class="stat-unit">combo</span>
+        </div>
+      </div>
+
+      <!-- Tempo Decorrido -->
+      <div class="hud-card">
+        <span class="stat-label">Tempo</span>
+        <div class="stat-value">
+          <span id="stat-time">00:00</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- PALCO DO TEXTO A SER DIGITADO -->
+    <section class="text-display-stage">
+      <div class="text-stream-wrapper" id="text-stream" aria-label="Texto de Digitação">
+        <!-- Letras renderizadas dinamicamente via game.js -->
+      </div>
+
+      <!-- Banner Didático: Dica do Caractere Atual -->
+      <div class="target-guide-banner">
+        <div class="guide-instruction">
+          <span class="guide-key-badge" id="guide-key-badge">F</span>
+          <span id="guide-instruction">Pressione <strong>F</strong> com o <strong>Indicador Esquerdo</strong></span>
+        </div>
+
+        <div class="guide-finger-indicator" id="guide-finger-indicator">
+          <span class="finger-dot" style="background-color: #10b981;"></span>
+          <span style="color: #10b981; font-weight: 800;">Indicador Esquerdo</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- GUIA ERGONÔMICO DAS MÃOS -->
+    <section class="hands-guide-container" aria-label="Posicionamento dos Dedos">
+      
+      <!-- Mão Esquerda -->
+      <div>
+        <div class="hand-label">Mão Esquerda</div>
+        <div class="hand-visual" id="hand-left">
+          <div class="finger-slot" id="finger-left-pinky" title="Dedo Mínimo Esquerdo">
+            <div class="finger-bone f-pinky" style="background: rgba(236, 72, 153, 0.2); border-color: rgba(236, 72, 153, 0.5);"></div>
+            <span class="finger-name-tag">Mín</span>
+          </div>
+          <div class="finger-slot" id="finger-left-ring" title="Dedo Anelar Esquerdo">
+            <div class="finger-bone f-ring" style="background: rgba(249, 115, 22, 0.2); border-color: rgba(249, 115, 22, 0.5);"></div>
+            <span class="finger-name-tag">Anel</span>
+          </div>
+          <div class="finger-slot" id="finger-left-middle" title="Dedo Médio Esquerdo">
+            <div class="finger-bone f-middle" style="background: rgba(234, 179, 8, 0.2); border-color: rgba(234, 179, 8, 0.5);"></div>
+            <span class="finger-name-tag">Méd</span>
+          </div>
+          <div class="finger-slot" id="finger-left-index" title="Dedo Indicador Esquerdo (Ancoragem F)">
+            <div class="finger-bone f-index" style="background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.5);"></div>
+            <span class="finger-name-tag">Ind (F)</span>
+          </div>
+          <div class="finger-slot" id="finger-thumbs" title="Polegares (Barra de Espaço)">
+            <div class="finger-bone f-thumb" style="background: rgba(14, 165, 233, 0.2); border-color: rgba(14, 165, 233, 0.5);"></div>
+            <span class="finger-name-tag">Pol</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mão Direita -->
+      <div>
+        <div class="hand-label">Mão Direita</div>
+        <div class="hand-visual" id="hand-right">
+          <div class="finger-slot" id="finger-thumbs-r" title="Polegares (Barra de Espaço)">
+            <div class="finger-bone f-thumb" style="background: rgba(14, 165, 233, 0.2); border-color: rgba(14, 165, 233, 0.5);"></div>
+            <span class="finger-name-tag">Pol</span>
+          </div>
+          <div class="finger-slot" id="finger-right-index" title="Dedo Indicador Direito (Ancoragem J)">
+            <div class="finger-bone f-index" style="background: rgba(20, 184, 166, 0.2); border-color: rgba(20, 184, 166, 0.5);"></div>
+            <span class="finger-name-tag">Ind (J)</span>
+          </div>
+          <div class="finger-slot" id="finger-right-middle" title="Dedo Médio Direito">
+            <div class="finger-bone f-middle" style="background: rgba(99, 102, 241, 0.2); border-color: rgba(99, 102, 241, 0.5);"></div>
+            <span class="finger-name-tag">Méd</span>
+          </div>
+          <div class="finger-slot" id="finger-right-ring" title="Dedo Anelar Direito">
+            <div class="finger-bone f-ring" style="background: rgba(139, 92, 246, 0.2); border-color: rgba(139, 92, 246, 0.5);"></div>
+            <span class="finger-name-tag">Anel</span>
+          </div>
+          <div class="finger-slot" id="finger-right-pinky" title="Dedo Mínimo Direito">
+            <div class="finger-bone f-pinky" style="background: rgba(168, 85, 247, 0.2); border-color: rgba(168, 85, 247, 0.5);"></div>
+            <span class="finger-name-tag">Mín</span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- TECLADO FÍSICO INTERATIVO ABNT2 -->
+    <section class="keyboard-container" aria-label="Teclado Virtual ABNT2">
+      <div id="keyboard-grid">
+        <!-- Renderizado dinamicamente por game.js a partir de keyboard-abnt2.js -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================================================== -->
+  <!-- MODAL 1: RESULTADOS DA LIÇÃO                         -->
+  <!-- ==================================================== -->
+  <div id="modal-result" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <span style="font-size: 3rem; display: block; margin-bottom: 0.5rem;">🎉</span>
+      <h2 style="font-size: 1.5rem; font-weight: 900; color: #ffffff;">Lição Concluída!</h2>
+      <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.25rem;">
+        Excelente trabalho na postura e técnica com os 10 dedos.
+      </p>
+
+      <!-- Avaliação em Estrelas -->
+      <div class="star-rating-box">
+        <span class="star-icon">⭐</span>
+        <span class="star-icon">⭐</span>
+        <span class="star-icon">⭐</span>
+      </div>
+
+      <!-- Grid de Estatísticas Finais -->
+      <div class="results-stats-grid">
+        <div class="result-stat-cell">
+          <span class="label">Velocidade</span>
+          <span class="val val-emerald"><span id="res-wpm">0</span> <small style="font-size: 0.6em; color: #94a3b8;">WPM</small></span>
+        </div>
+        <div class="result-stat-cell">
+          <span class="label">Precisão</span>
+          <span class="val val-indigo"><span id="res-accuracy">100%</span></span>
+        </div>
+        <div class="result-stat-cell">
+          <span class="label">Erros</span>
+          <span class="val" style="color: #f43f5e;"><span id="res-errors">0</span></span>
+        </div>
+        <div class="result-stat-cell">
+          <span class="label">Maior Combo</span>
+          <span class="val val-gold"><span id="res-combo">0</span></span>
+        </div>
+        <div class="result-stat-cell">
+          <span class="label">Tempo Total</span>
+          <span class="val"><span id="res-time">0s</span></span>
+        </div>
+        <div class="result-stat-cell">
+          <span class="label">Status</span>
+          <span class="val" style="font-size: 1rem; color: #10b981; font-weight: 800;">Aprovado</span>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="gameInstance.repeatLesson()">
+          🔄 Repetir Lição
+        </button>
+        <button class="btn-primary" onclick="gameInstance.nextLesson()">
+          Próxima Lição ➔
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================================================== -->
+  <!-- MODAL 2: SELETOR DE TODAS AS LIÇÕES                  -->
+  <!-- ==================================================== -->
+  <div id="modal-lessons" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-card" style="max-width: 760px; text-align: left;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+        <div>
+          <h2 style="font-size: 1.25rem; font-weight: 900; color: #ffffff;">Trilha do Teclado Cego</h2>
+          <p style="font-size: 0.75rem; color: #94a3b8;">Escolha um nível para praticar a ergonomia e postura correta:</p>
+        </div>
+        <button onclick="gameInstance.closeModal('modal-lessons')" class="btn-header">✕ Fechar</button>
+      </div>
+
+      <div class="lessons-grid" id="lessons-picker-grid">
+        <!-- Renderizado dinamicamente por game.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================================================== -->
+  <!-- RODAPÉ INSTITUCIONAL                                 -->
+  <!-- ==================================================== -->
+  <footer class="app-footer">
+    <div>
+      <a href="https://sodiprom.com.br" target="_blank" rel="noopener noreferrer">
+        SODIPROM - CAMP Diadema
+      </a>
+      <span>• 50 Anos Transformando Vidas</span>
+    </div>
+    <div>
+      <span>Módulo Educacional de Capacitação em Digitação Profissional</span>
+    </div>
+  </footer>
+
+  <!-- Scripts do Jogo -->
+  <script src="js/audio.js"></script>
+  <script src="js/keyboard-abnt2.js"></script>
+  <script src="js/lessons.js"></script>
+  <script src="js/game.js"></script>
+
+</body>
+</html>

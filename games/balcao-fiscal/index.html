@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Balcão Fiscal: Desafio da Nota Fiscal | SODIPROM - CAMP Diadema</title>
+  <meta name="description" content="Jogo educativo de digitação e entrada de notas fiscais focado no teclado numérico e rotinas fiscais. Desenvolvido para jovens aprendizes da SODIPROM.">
+
+  <link rel="icon" type="image/png" href="../logo-icon-sodiprom.png">
+
+  <!-- Fontes Google -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ==================================================== -->
+  <!-- BARRA SUPERIOR INSTITUCIONAL                         -->
+  <!-- ==================================================== -->
+  <header class="fiscal-header">
+    <div class="brand-section">
+      <a href="../index.html" class="brand-link" title="Voltar ao Portal de Jogos">
+        <img src="../sodiprom-logo.png" alt="SODIPROM" class="brand-logo">
+      </a>
+      <div class="brand-title-wrap">
+        <h1>Balcão Fiscal • Desafio da Nota Fiscal</h1>
+        <p>Treinamento de Teclado Numérico & Rotinas Fiscais</p>
+      </div>
+    </div>
+
+    <div class="header-controls">
+      <button id="btnSoundToggle" class="btn-icon" title="Alternar som">
+        <span>🔊</span> <span>Som: Ligado</span>
+      </button>
+      <button class="btn-icon" onclick="window.game.openModeSelect()" title="Escolher Modo ou Fase">
+        <span>📋</span> <span>Modos / Fases</span>
+      </button>
+      <a href="../index.html" class="btn-icon btn-icon--back" title="Voltar ao Portal">
+        <span>⬅️</span> <span>Sair para o Portal</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- ==================================================== -->
+  <!-- HUD: METRICAS E STATUS                               -->
+  <!-- ==================================================== -->
+  <div class="hud-bar">
+    <div class="level-info-badge">
+      <span id="levelBadge" class="badge-tag">Nível 1</span>
+      <span id="levelTitle" class="level-name">Primeiro Dia no Faturamento</span>
+    </div>
+
+    <div class="hud-metrics">
+      <div class="metric-item">
+        <span class="metric-label">Pontuação</span>
+        <span id="metricScore" class="metric-val metric-val--score">0</span>
+      </div>
+
+      <div class="metric-item">
+        <span class="metric-label">Combo</span>
+        <span id="metricCombo" class="metric-val metric-val--combo">1x</span>
+      </div>
+
+      <div class="metric-item">
+        <span class="metric-label">Meta / NF</span>
+        <span id="metricGoal" class="metric-val metric-val--goal">0 / 6</span>
+      </div>
+
+      <div class="metric-item" style="display: none;">
+        <span class="metric-label">Tempo</span>
+        <span id="metricTimer" class="metric-val" style="color: #38bdf8;">01:00</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================================================== -->
+  <!-- O CENÁRIO: O BALCÃO DE ESCRITÓRIO                    -->
+  <!-- ==================================================== -->
+  <main class="game-stage">
+    <div class="desk-light-glow"></div>
+
+    <div class="desk-counter">
+      <!-- Acessórios de mesa -->
+      <div class="desk-accessory desk-inbox">
+        <span>📥</span> <span>PILHA DE ENTRADA</span>
+      </div>
+      <div class="desk-accessory desk-outbox">
+        <span>📤</span> <span>NOTAS PROCESSADAS</span>
+      </div>
+
+      <!-- Centro do balcão: A Nota Fiscal -->
+      <div class="counter-center-zone">
+        <div class="invoice-wrapper">
+          
+          <div id="invoicePaper" class="invoice-paper slide-in">
+            <!-- Cabeçalho da Nota -->
+            <div class="invoice-header">
+              <div class="invoice-emitter">
+                <div id="emitterEmoji" class="emitter-logo">⭐</div>
+                <div class="emitter-info">
+                  <h3 id="emitterName">Supermercado Estrela de Diadema Ltda</h3>
+                  <p id="emitterCnpj">CNPJ: 44.921.840/0001-92 • Diadema - SP</p>
+                </div>
+              </div>
+
+              <div class="invoice-danfe-badge">
+                <span class="danfe-tag">DANFE</span>
+                <p id="danfeSerie" class="danfe-serie">Série: 001</p>
+              </div>
+            </div>
+
+            <!-- Grid de Campos da Nota -->
+            <div class="invoice-grid">
+              <div id="boxInvoiceNumber" class="invoice-field-box target-highlight">
+                <span class="field-label">Nº DA NOTA FISCAL:</span>
+                <span id="dispInvoiceNumber" class="field-value">004.819</span>
+              </div>
+
+              <div id="boxEmissionDate" class="invoice-field-box">
+                <span class="field-label">DATA DE EMISSÃO:</span>
+                <span id="dispEmissionDate" class="field-value">14/10/2026</span>
+              </div>
+
+              <div id="boxBarcode" class="invoice-field-box">
+                <span class="field-label">LOTE / CÓD. FISCAL:</span>
+                <span id="dispBarcode" class="field-value">7891234</span>
+              </div>
+
+              <div id="boxTotalValue" class="invoice-field-box">
+                <span class="field-label">VALOR TOTAL DA NOTA:</span>
+                <span id="dispTotalValue" class="field-value">R$ 1.250,00</span>
+              </div>
+            </div>
+
+            <!-- Tabela de Produtos -->
+            <table class="invoice-items-table">
+              <thead>
+                <tr>
+                  <th>Descrição dos Produtos / Serviços</th>
+                  <th>Qtd</th>
+                  <th>Vl. Unit.</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody id="invoiceItemsTbody">
+                <tr>
+                  <td>Resma Papel Sulfite A4 75g</td>
+                  <td class="mono-td">5</td>
+                  <td class="mono-td">R$ 28,00</td>
+                  <td class="mono-td">R$ 140,00</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- Linha de Totalizador da Nota -->
+            <div class="invoice-total-row">
+              <span class="total-title">Total da Nota:</span>
+              <span id="dispTotalFooter" class="total-value-display">CONFERIDO</span>
+            </div>
+
+            <!-- Carimbo Oficial Animado -->
+            <div id="stampOverlay" class="stamp-overlay">
+              <span>ENTRADA CONFIRMADA</span>
+              <span class="stamp-sub">SODIPROM • PROCESSADA</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Console Interativo de Entrada -->
+        <div class="typing-console">
+          <div id="consolePrompt" class="console-prompt-text">
+            <span>🎯 NÚMERO DA NOTA FISCAL:</span>
+            <span class="console-instruction-pill">💡 Digite o número e pressione [ENTER]</span>
+          </div>
+
+          <div class="console-input-row">
+            <div id="consoleBufferDisplay" class="console-display-input focus-border">
+              <span class="typing-cursor"></span>
+            </div>
+
+            <button id="btnEnterStamp" class="btn-enter-stamp" title="Carimbar e concluir entrada">
+              <span>🖃</span> <span>CARIMBAR [ENTER]</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ==================================================== -->
+  <!-- GUIA VIRTUAL DO TECLADO NUMÉRICO (NUMPAD 3D)         -->
+  <!-- ==================================================== -->
+  <aside class="numpad-drawer">
+    <button id="btnToggleNumpad" class="btn-toggle-numpad" title="Mostrar ou ocultar teclado numérico">
+      <span>⌨️</span> <span>Guia do Teclado Numérico</span>
+    </button>
+
+    <div id="numpadPanel" class="numpad-panel">
+      <div class="numpad-header">
+        <span>Teclado Numérico (Numpad)</span>
+        <span>ABNT2</span>
+      </div>
+
+      <div class="numpad-grid">
+        <div class="np-key" data-key="NumLock">Num</div>
+        <div class="np-key" data-key="/">/</div>
+        <div class="np-key" data-key="*">*</div>
+        <div class="np-key" data-key="-">-</div>
+
+        <div class="np-key" data-key="7">7</div>
+        <div class="np-key" data-key="8">8</div>
+        <div class="np-key" data-key="9">9</div>
+        <div class="np-key tall-key" data-key="+">+</div>
+
+        <div class="np-key" data-key="4">4</div>
+        <div class="np-key notch-5" data-key="5">5</div>
+        <div class="np-key" data-key="6">6</div>
+
+        <div class="np-key" data-key="1">1</div>
+        <div class="np-key" data-key="2">2</div>
+        <div class="np-key" data-key="3">3</div>
+        <div class="np-key tall-key" data-key="Enter">⏎</div>
+
+        <div class="np-key wide-key" data-key="0">0</div>
+        <div class="np-key" data-key=",">,</div>
+      </div>
+
+      <div class="finger-guide-tips">
+        <span>👉 <strong>Indicador</strong>: Tecla 4 / 7 / 1</span>
+        <span>🖕 <strong>Médio</strong>: Tecla 5 (Relevo tátil) / 8 / 2</span>
+        <span>💍 <strong>Anelar</strong>: Tecla 6 / 9 / 3</span>
+        <span>🤙 <strong>Mindinho</strong>: Tecla Enter / +</span>
+        <span>👍 <strong>Polegar</strong>: Tecla 0</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ==================================================== -->
+  <!-- MODAL: SELEÇÃO DE MODO E FASES                       -->
+  <!-- ==================================================== -->
+  <div id="modalModeSelect" class="fiscal-modal-backdrop modal-open">
+    <div class="fiscal-modal-card">
+      <div class="modal-badge-icon">💼</div>
+      <div class="modal-header">
+        <h2>Balcão Fiscal • Escolha seu Treino</h2>
+        <p>Aprenda a digitar notas fiscais e valores com precisão e velocidade no teclado numérico.</p>
+      </div>
+
+      <div class="modes-list">
+        <button class="mode-option-btn" onclick="window.game.startMode('career', 0)">
+          <span class="mode-opt-icon">📈</span>
+          <div class="mode-opt-info">
+            <h4>Modo Carreira (Fases Progressivas)</h4>
+            <p>Do primeiro dia como aprendiz até o domínio de notas fiscais complexas, valores e chaves.</p>
+          </div>
+        </button>
+
+        <button class="mode-option-btn" onclick="window.game.startMode('rush')">
+          <span class="mode-opt-icon">⚡</span>
+          <div class="mode-opt-info">
+            <h4>Modo Corrida do Balcão (Rush 60s)</h4>
+            <p>O balcão está lotado! Carimbe o maior número de notas fiscais possível antes do tempo acabar.</p>
+          </div>
+        </button>
+
+        <button class="mode-option-btn" onclick="window.game.startMode('free')">
+          <span class="mode-opt-icon">🎯</span>
+          <div class="mode-opt-info">
+            <h4>Modo Treino Livre</h4>
+            <p>Pratique continuamente no seu próprio ritmo sem contagem regressiva de tempo.</p>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================================================== -->
+  <!-- MODAL: VITÓRIA DE FASE                               -->
+  <!-- ==================================================== -->
+  <div id="modalVictory" class="fiscal-modal-backdrop">
+    <div class="fiscal-modal-card">
+      <div class="modal-badge-icon">🎉</div>
+      <div class="modal-header">
+        <h2 id="vicLevelTitle">Nível Concluído com Sucesso!</h2>
+        <p id="vicBadge" style="color: #fbbf24; font-weight: 800;">Distintivo de Conquista</p>
+      </div>
+
+      <div class="results-stats-grid">
+        <div class="result-stat-box">
+          <span class="lbl">Pontos</span>
+          <span id="vicScore" class="val">1.200</span>
+        </div>
+        <div class="result-stat-box">
+          <span class="lbl">Notas Carimbadas</span>
+          <span id="vicInvoices" class="val">8</span>
+        </div>
+        <div class="result-stat-box">
+          <span class="lbl">Precisão</span>
+          <span id="vicAccuracy" class="val">98%</span>
+        </div>
+        <div class="result-stat-box">
+          <span class="lbl">Ritmo</span>
+          <span id="vicNpm" class="val">18 NF/min</span>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="btnNextLevel" class="btn-primary-action">
+          <span>🚀</span> <span>PRÓXIMA FASE</span>
+        </button>
+        <button class="btn-icon" onclick="window.game.openModeSelect()">
+          <span>📋</span> <span>Menu de Fases</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================================================== -->
+  <!-- MODAL: FIM DE TEMPO (CORRIDA RUSH)                   -->
+  <!-- ==================================================== -->
+  <div id="modalGameOver" class="fiscal-modal-backdrop">
+    <div class="fiscal-modal-card">
+      <div class="modal-badge-icon">⏱️</div>
+      <div class="modal-header">
+        <h2>Expediente Encerrado!</h2>
+        <p>Você completou o Desafio da Corrida de 60 segundos.</p>
+      </div>
+
+      <div class="results-stats-grid">
+        <div class="result-stat-box">
+          <span class="lbl">Pontos Totais</span>
+          <span id="goScore" class="val">2.450</span>
+        </div>
+        <div class="result-stat-box">
+          <span class="lbl">Notas Processadas</span>
+          <span id="goInvoices" class="val">14</span>
+        </div>
+        <div class="result-stat-box">
+          <span class="lbl">Maior Combo</span>
+          <span id="goMaxCombo" class="val">8x</span>
+        </div>
+        <div class="result-stat-box">
+          <span class="lbl">Precisão</span>
+          <span id="goAccuracy" class="val">95%</span>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-primary-action" onclick="window.game.startMode('rush')">
+          <span>🔄</span> <span>JOGAR NOVAMENTE</span>
+        </button>
+        <button class="btn-icon" onclick="window.game.openModeSelect()">
+          <span>📋</span> <span>Menu de Fases</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================================================== -->
+  <!-- RODAPÉ INSTITUCIONAL                                 -->
+  <!-- ==================================================== -->
+  <footer class="fiscal-footer">
+    <div>
+      SODIPROM • CAMP Diadema — Capacitação para o Mercado de Trabalho • 50 Anos
+    </div>
+    <div>
+      <a href="../index.html">Portal de Jogos</a> • 
+      <a href="https://sodiprom.com.br" target="_blank" rel="noopener noreferrer">sodiprom.com.br</a>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/invoices.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>

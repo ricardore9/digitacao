@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal de Jogos Educacionais | SODIPROM - CAMP Diadema</title>
+  <meta name="description" content="Plataforma de capacitação e jogos de digitação da SODIPROM - CAMP Diadema. Treinamento de velocidade, precisão, postura e ergonomia para jovens aprendizes.">
+  
+  <link rel="icon" type="image/png" href="logo-icon-sodiprom.png">
+  
+  <!-- Fontes Google Modernas -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary-navy: #0a0f1d;
+      --primary-dark: #0f172a;
+      --card-bg: rgba(30, 41, 59, 0.65);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent-indigo: #6366f1;
+      --accent-indigo-dark: #4f46e5;
+      --accent-orange: #ea580c;
+      --accent-gold: #f59e0b;
+      --accent-emerald: #10b981;
+      --accent-purple: #8b5cf6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(135deg, #090d16 0%, #111827 40%, #1e1b4b 80%, #0a0f1d 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* ==========================================================================
+       BARRA DE NAVEGAÇÃO SUPERIOR
+       ========================================================================== */
+    .hub-header {
+      background: rgba(10, 15, 29, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--card-border);
+      padding: 0.85rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .brand-logos {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      text-decoration: none;
+    }
+
+    .logo-main {
+      height: 42px;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+    }
+
+    .logo-50anos {
+      height: 36px;
+      object-fit: contain;
+    }
+
+    .brand-sep {
+      width: 1px;
+      height: 32px;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .brand-caption h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(90deg, #ffffff, #c7d2fe);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.1;
+    }
+
+    .brand-caption p {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .header-links {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .header-btn {
+      padding: 0.55rem 1rem;
+      border-radius: 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s ease;
+      border: 1px solid var(--card-border);
+      background: rgba(255, 255, 255, 0.05);
+      color: #e2e8f0;
+    }
+
+    .header-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      transform: translateY(-1px);
+    }
+
+    .header-btn--admin {
+      background: rgba(245, 158, 11, 0.1);
+      border-color: rgba(245, 158, 11, 0.3);
+      color: #fbbf24;
+    }
+
+    .header-btn--admin:hover {
+      background: rgba(245, 158, 11, 0.2);
+    }
+
+    /* ==========================================================================
+       HERO PRINCIPAL
+       ========================================================================== */
+    .hero-section {
+      text-align: center;
+      padding: 3.5rem 1.5rem 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      color: #a5b4fc;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 1.25rem;
+    }
+
+    .hero-title {
+      font-size: 2.75rem;
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #ffffff 30%, #c7d2fe 70%, #818cf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      max-width: 680px;
+      margin: 0 auto 2rem;
+      font-weight: 400;
+    }
+
+    .hero-pill-stats {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+
+    .pill-stat {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* ==========================================================================
+       VITRINE DE JOGOS (GRID)
+       ========================================================================== */
+    .games-section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem 4rem;
+      width: 100%;
+    }
+
+    .section-header-wrap {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .section-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* CARD DE JOGO */
+    .game-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 1.5rem;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.3);
+    }
+
+    .game-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(99, 102, 241, 0.4);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45), 0 0 24px rgba(99, 102, 241, 0.2);
+    }
+
+    .game-banner {
+      height: 180px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .game-banner--digita {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+    }
+
+    .game-banner--teclado {
+      background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #0d9488 100%);
+    }
+
+    .game-banner--office {
+      background: linear-gradient(135deg, #7c2d12 0%, #9a3412 50%, #c2410c 100%);
+      opacity: 0.85;
+    }
+
+    .game-banner--race {
+      background: linear-gradient(135deg, #581c87 0%, #6b21a8 50%, #7e22ce 100%);
+      opacity: 0.85;
+    }
+
+    .game-icon-large {
+      font-size: 5rem;
+      filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4));
+      transition: transform 0.3s ease;
+    }
+
+    .game-card:hover .game-icon-large {
+      transform: scale(1.1) rotate(2deg);
+    }
+
+    .game-status-badge {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .status-live {
+      background: #10b981;
+      color: #ffffff;
+    }
+
+    .status-new {
+      background: #8b5cf6;
+      color: #ffffff;
+      animation: pulseBadge 1.5s infinite alternate;
+    }
+
+    @keyframes pulseBadge {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.05); }
+    }
+
+    .status-soon {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      color: #cbd5e1;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .game-body {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      justify-content: space-between;
+      gap: 1.25rem;
+    }
+
+    .game-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 0.4rem;
+      line-height: 1.2;
+    }
+
+    .game-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .game-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-top: 0.5rem;
+    }
+
+    .game-features li {
+      font-size: 0.75rem;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+    }
+
+    .game-features li span {
+      color: var(--accent-indigo);
+      font-weight: 800;
+    }
+
+    .game-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .btn-play {
+      flex: 1;
+      padding: 0.85rem 1.25rem;
+      border-radius: 1rem;
+      font-size: 0.9rem;
+      font-weight: 800;
+      text-decoration: none;
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, #4f46e5, #4338ca);
+      color: #ffffff;
+      box-shadow: 0 4px 16px rgba(79, 70, 229, 0.35);
+      transition: all 0.2s ease;
+    }
+
+    .btn-play:hover {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(79, 70, 229, 0.5);
+    }
+
+    .btn-play--green {
+      background: linear-gradient(135deg, #059669, #047857);
+      box-shadow: 0 4px 16px rgba(5, 150, 105, 0.35);
+    }
+
+    .btn-play--green:hover {
+      background: linear-gradient(135deg, #10b981, #059669);
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.5);
+    }
+
+    .btn-play--orange {
+      background: linear-gradient(135deg, #ea580c, #c2410c);
+      box-shadow: 0 4px 16px rgba(234, 88, 12, 0.35);
+    }
+
+    .btn-play--orange:hover {
+      background: linear-gradient(135deg, #f97316, #ea580c);
+      box-shadow: 0 8px 24px rgba(234, 88, 12, 0.5);
+    }
+
+    .btn-secondary {
+      padding: 0.85rem 1rem;
+      border-radius: 1rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-decoration: none;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--card-border);
+      color: #e2e8f0;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+      transform: translateY(-1px);
+    }
+
+    .btn-disabled {
+      flex: 1;
+      padding: 0.85rem;
+      border-radius: 1rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      color: #64748b;
+      cursor: not-allowed;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+
+    /* ==========================================================================
+       RODAPÉ OFICIAL
+       ========================================================================== */
+    .hub-footer {
+      background: var(--primary-navy);
+      border-top: 1px solid var(--card-border);
+      padding: 2.5rem 2rem 1.5rem;
+      margin-top: auto;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .footer-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 1.5rem;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .footer-brand img {
+      height: 38px;
+    }
+
+    .footer-brand-text h4 {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .footer-brand-text p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .footer-bottom {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.75rem;
+      color: #64748b;
+    }
+
+    .footer-bottom a {
+      color: #818cf8;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .footer-bottom a:hover {
+      text-decoration: underline;
+    }
+
+    /* RESPONSIVIDADE */
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 2rem;
+      }
+      .hub-header {
+        padding: 0.75rem 1rem;
+      }
+      .brand-caption {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================================================== -->
+  <!-- TOPO INSTITUCIONAL SODIPROM                          -->
+  <!-- ==================================================== -->
+  <header class="hub-header">
+    <div class="brand-group">
+      <a href="https://sodiprom.com.br" target="_blank" rel="noopener noreferrer" class="brand-logos" title="Ir para o site oficial da SODIPROM">
+        <img src="sodiprom-logo.png" alt="SODIPROM" class="logo-main">
+        <img src="sodiprom-logo50anos.png" alt="SODIPROM 50 Anos" class="logo-50anos">
+      </a>
+      <div class="brand-sep"></div>
+      <div class="brand-caption">
+        <h1>SODIPROM • CAMP Diadema</h1>
+        <p>Capacitação e Inclusão Digital • 50 Anos</p>
+      </div>
+    </div>
+
+    <div class="header-links">
+      <a href="digita/admin.php" target="_blank" class="header-btn header-btn--admin" title="Gerenciamento do Ranking e Relatórios">
+        <span>⚙️</span> <span>Área do Administrador</span>
+      </a>
+      <a href="https://sodiprom.com.br" target="_blank" rel="noopener noreferrer" class="header-btn" title="Site Oficial">
+        <span>🌐</span> <span>sodiprom.com.br</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- ==================================================== -->
+  <!-- HERO BANNER DO PORTAL                                -->
+  <!-- ==================================================== -->
+  <section class="hero-section">
+    <div class="hero-badge">
+      <span>🚀</span> <span>Plataforma Educacional de Gamificação</span>
+    </div>
+    
+    <h1 class="hero-title">
+      Portal de Jogos & Digitação Profissional
+    </h1>
+    
+    <p class="hero-subtitle">
+      Desenvolva fluência, agilidade, ergonomia e velocidade no teclado. Desafios interativos preparados especialmente para a formação e ingresso do jovem aprendiz no mercado de trabalho.
+    </p>
+
+    <div class="hero-pill-stats">
+      <div class="pill-stat">
+        <span>⌨️</span> <span>Padrão Brasileiro ABNT2</span>
+      </div>
+      <div class="pill-stat">
+        <span>🏆</span> <span>Rankings em Tempo Real</span>
+      </div>
+      <div class="pill-stat">
+        <span>💼</span> <span>Prática para Escritório</span>
+      </div>
+      <div class="pill-stat">
+        <span>🎯</span> <span>Técnica com os 10 Dedos</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================== -->
+  <!-- VITRINE DE JOGOS DISPONÍVEIS                         -->
+  <!-- ==================================================== -->
+  <main class="games-section">
+    
+    <div class="section-header-wrap">
+      <div>
+        <h2 class="section-title">
+          <span>🎮</span> <span>Jogos de Treinamento</span>
+        </h2>
+        <p class="section-subtitle">
+          Escolha um modo de treino abaixo e inicie sua jornada para se tornar um digitador profissional:
+        </p>
+      </div>
+    </div>
+
+    <div class="games-grid">
+
+      <!-- ============================================== -->
+      <!-- JOGO 1: DESAFIO DE DIGITAÇÃO (QUEDA LIVRE)     -->
+      <!-- ============================================== -->
+      <article class="game-card">
+        <div class="game-banner game-banner--digita">
+          <div class="game-icon-large">🔤</div>
+          <span class="game-status-badge status-live">● Jogo Ativo • Ranking</span>
+        </div>
+
+        <div class="game-body">
+          <div>
+            <h3 class="game-title">Desafio de Digitação</h3>
+            <p class="game-desc">
+              Teste sua velocidade e reflexos sob pressão! Digite as palavras em queda livre antes que atinjam o chão. Avance por 8 fases desafiadoras.
+            </p>
+
+            <ul class="game-features">
+              <li><span>✓</span> 8 Fases com aceleração, acentuação e multitarefas</li>
+              <li><span>✓</span> Ranking oficial com medalhas de ouro, prata e bronze</li>
+              <li><span>✓</span> Modo Estudo livre para treinar fases específicas</li>
+            </ul>
+          </div>
+
+          <div class="game-actions">
+            <a href="digita/index.html" class="btn-play">
+              <span>🚀</span> <span>JOGAR AGORA</span>
+            </a>
+            <a href="digita/ranking_completo_final.php" class="btn-secondary" title="Acessar ranking oficial">
+              <span>🏆</span>
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <!-- ============================================== -->
+      <!-- JOGO 2: MESTRE DO TECLADO CEGO (ABNT2)         -->
+      <!-- ============================================== -->
+      <article class="game-card">
+        <div class="game-banner game-banner--teclado">
+          <div class="game-icon-large">⌨️</div>
+          <span class="game-status-badge status-new">🌟 Novo • Ergonomia</span>
+        </div>
+
+        <div class="game-body">
+          <div>
+            <h3 class="game-title">Mestre do Teclado Cego</h3>
+            <p class="game-desc">
+              Aprenda a digitar com todos os 10 dedos sem olhar para o teclado! Teclado virtual mecânico 3D e mãos com dedos coloridos guiando cada tecla.
+            </p>
+
+            <ul class="game-features">
+              <li><span>✓</span> Teclado físico virtual 3D no padrão ABNT2</li>
+              <li><span>✓</span> Guia visual das mãos iluminando os dedos certos</li>
+              <li><span>✓</span> 22 Lições progressivas (da Linha Guia até E-mails)</li>
+              <li><span>✓</span> Métricas em tempo real: WPM, Precisão e Combos</li>
+            </ul>
+          </div>
+
+          <div class="game-actions">
+            <a href="teclado-cego/index.html" class="btn-play btn-play--green">
+              <span>🚀</span> <span>JOGAR AGORA</span>
+            </a>
+            <a href="teclado-cego/index.html" class="btn-secondary" title="Ver trilha de lições">
+              <span>🗺️</span>
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <!-- ============================================== -->
+      <!-- JOGO 3: BALCÃO FISCAL (DESAFIO DA NOTA FISCAL) -->
+      <!-- ============================================== -->
+      <article class="game-card">
+        <div class="game-banner game-banner--office">
+          <div class="game-icon-large">🧾</div>
+          <span class="game-status-badge status-live">● Jogo Ativo • Novo!</span>
+        </div>
+
+        <div class="game-body">
+          <div>
+            <h3 class="game-title">Balcão Fiscal: Desafio da Nota Fiscal</h3>
+            <p class="game-desc">
+              Simulador lúdico de rotinas fiscais e faturamento! Receba notas fiscais no balcão, confira e digite números de DANFE, valores em R$, datas e códigos de barras no teclado numérico, e carimbe com Enter.
+            </p>
+
+            <ul class="game-features">
+              <li><span>✓</span> Treino intensivo de Teclado Numérico (Numpad ABNT2)</li>
+              <li><span>✓</span> 7 Níveis de carreira: do Estagiário ao Mestre do Faturamento</li>
+              <li><span>✓</span> Animação 3D de carimbo ("Entrada Confirmada!") e efeitos de papel</li>
+              <li><span>✓</span> Modo Corrida 60s, Combos de precisão e Treino Livre</li>
+            </ul>
+          </div>
+
+          <div class="game-actions">
+            <a href="balcao-fiscal/index.html" class="btn-play btn-play--orange">
+              <span>🚀</span> <span>JOGAR AGORA</span>
+            </a>
+            <a href="balcao-fiscal/index.html" class="btn-secondary" title="Acessar Balcão Fiscal">
+              <span>📋</span>
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <!-- ============================================== -->
+      <!-- JOGO 4: TYPING RACE (CORRIDA DE DIGITAÇÃO)     -->
+      <!-- ============================================== -->
+      <article class="game-card" style="opacity: 0.85;">
+        <div class="game-banner game-banner--race">
+          <div class="game-icon-large">🏎️</div>
+          <span class="game-status-badge status-soon">⚙️ Em Breve</span>
+        </div>
+
+        <div class="game-body">
+          <div>
+            <h3 class="game-title">Typing Race</h3>
+            <p class="game-desc">
+              Corrida de alta velocidade! Digite parágrafos inteiros com pontuação e fluência para acelerar seu carro na pista contra bots ou colegas da sua turma da SODIPROM.
+            </p>
+
+            <ul class="game-features">
+              <li><span>⏳</span> Fluência em textos corridos e parágrafos completos</li>
+              <li><span>⏳</span> Competições de turma com cálculo oficial de WPM</li>
+            </ul>
+          </div>
+
+          <div class="game-actions">
+            <div class="btn-disabled">
+              <span>🔒</span> <span>Em Desenvolvimento</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+    </div>
+
+  </main>
+
+  <!-- ==================================================== -->
+  <!-- RODAPÉ INSTITUCIONAL                                 -->
+  <!-- ==================================================== -->
+  <footer class="hub-footer">
+    <div class="footer-content">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <img src="sodiprom-logo.png" alt="SODIPROM">
+          <div class="footer-brand-text">
+            <h4>SODIPROM - CAMP Diadema</h4>
+            <p>Associação Beneficente de Promoção Humana e Cidadania • 50 Anos</p>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem;">
+          <a href="digita/admin.php" class="header-btn" title="Painel de Controle">
+            <span>⚙️ Painel Admin</span>
+          </a>
+          <a href="https://sodiprom.com.br" target="_blank" rel="noopener noreferrer" class="header-btn">
+            <span>🌐 Site Institucional</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>
+          <span>© 2026 SODIPROM - CAMP Diadema. Todos os direitos reservados.</span>
+        </div>
+        <div>
+          <span>Desenvolvido para Capacitação e Inclusão Digital de Jovens Aprendizes.</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

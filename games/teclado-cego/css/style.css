@@ -1,0 +1,812 @@
+/* ==========================================================================
+   MESTRE DO TECLADO CEGO - DESIGN SYSTEM & ESTILOS
+   SODIPROM - CAMP Diadema | Capacitação e Inclusão Digital
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&display=swap');
+
+:root {
+  --primary-navy: #0f172a;
+  --primary-indigo: #4338ca;
+  --accent-gold: #f59e0b;
+  --accent-emerald: #10b981;
+  --accent-rose: #f43f5e;
+  
+  /* Cores Ergonômicas dos Dedos */
+  --finger-l-pinky: #ec4899;   /* Rosa */
+  --finger-l-ring: #f97316;    /* Laranja */
+  --finger-l-middle: #eab308;  /* Âmbar */
+  --finger-l-index: #10b981;   /* Verde Esmeralda (F) */
+  --finger-thumbs: #0ea5e9;    /* Azul Céu (Espaço) */
+  --finger-r-index: #14b8a6;   /* Teal / Ciano (J) */
+  --finger-r-middle: #6366f1;  /* Índigo */
+  --finger-r-ring: #8b5cf6;    /* Violeta */
+  --finger-r-pinky: #a855f7;   /* Roxo */
+
+  --key-bg: #ffffff;
+  --key-shadow: #cbd5e1;
+  --key-text: #1e293b;
+  --key-border: #e2e8f0;
+
+  --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.hidden {
+  display: none !important;
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg-gradient);
+  color: #f8fafc;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  user-select: none;
+}
+
+/* ==========================================================================
+   CABEÇALHO INSTITUCIONAL
+   ========================================================================== */
+.app-header {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.brand-logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+}
+
+.brand-logo-img {
+  height: 38px;
+  object-contain: contain;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+}
+
+.brand-divider {
+  width: 1px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.game-title-group h1 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(90deg, #ffffff, #c7d2fe);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.1;
+}
+
+.game-title-group p {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btn-header {
+  padding: 0.5rem 0.85rem;
+  border-radius: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f1f5f9;
+  transition: all 0.2s ease;
+}
+
+.btn-header:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+.btn-accent {
+  background: linear-gradient(135deg, #4f46e5, #4338ca);
+  border-color: #6366f1;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.btn-accent:hover {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.45);
+}
+
+/* ==========================================================================
+   CONTEÚDO PRINCIPAL
+   ========================================================================== */
+.main-stage {
+  flex: 1;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* BARRA DE HUD (MÉTRICAS EM TEMPO REAL) */
+.hud-bar {
+  display: grid;
+  grid-template-columns: 2fr repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.hud-card {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  padding: 0.85rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.hud-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.6), transparent);
+}
+
+.lesson-info-tag {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #818cf8;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.2rem;
+}
+
+.lesson-info-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stat-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #94a3b8;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.2rem;
+}
+
+.stat-value {
+  font-size: 1.6rem;
+  font-weight: 900;
+  font-family: 'JetBrains Mono', monospace;
+  color: #ffffff;
+  line-height: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.stat-unit {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.val-gold { color: #f59e0b; }
+.val-emerald { color: #10b981; }
+.val-indigo { color: #818cf8; }
+
+/* ==========================================================================
+   DISPLAY DE TEXTO & FLUXO DE DIGITAÇÃO
+   ========================================================================== */
+.text-display-stage {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+}
+
+.text-stream-wrapper {
+  background: #090d16;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 1rem;
+  padding: 1.25rem 1.5rem;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.5rem;
+  letter-spacing: 0.08em;
+  overflow-x: auto;
+  white-space: pre;
+  position: relative;
+  scrollbar-width: thin;
+}
+
+/* CARACTERES INDIVIDUAIS */
+.char {
+  position: relative;
+  transition: all 0.12s ease;
+  border-radius: 4px;
+  padding: 0 1px;
+}
+
+.char.correct {
+  color: #10b981;
+  text-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+}
+
+.char.wrong {
+  color: #ffffff;
+  background: #ef4444;
+  border-radius: 4px;
+  animation: shakeChar 0.2s ease;
+}
+
+@keyframes shakeChar {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+
+.char.current {
+  color: #ffffff;
+  background: #4f46e5;
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-weight: 800;
+  box-shadow: 0 0 16px rgba(79, 70, 229, 0.8);
+  animation: pulseCurrent 1s infinite alternate;
+}
+
+@keyframes pulseCurrent {
+  0% { transform: scale(1); box-shadow: 0 0 12px rgba(79, 70, 229, 0.5); }
+  100% { transform: scale(1.08); box-shadow: 0 0 20px rgba(99, 102, 241, 0.9); }
+}
+
+.char.upcoming {
+  color: #64748b;
+}
+
+/* GUIA DIDÁTICO DO CARACTERE ATUAL */
+.target-guide-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.25rem;
+}
+
+.guide-instruction {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+.guide-key-badge {
+  background: #1e1b4b;
+  border: 1px solid #6366f1;
+  color: #ffffff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.1rem;
+  font-weight: 800;
+  padding: 0.2rem 0.7rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+}
+
+.guide-finger-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.finger-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 8px currentColor;
+}
+
+/* ==========================================================================
+   TECLADO FÍSICO VIRTUAL ABNT2 (3D MECHANICAL KEYCAPS)
+   ========================================================================== */
+.keyboard-container {
+  background: #090d16;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1.5rem;
+  padding: 1.25rem;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), inset 0 2px 6px rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  position: relative;
+}
+
+.keyboard-row {
+  display: flex;
+  gap: 0.4rem;
+  justify-content: center;
+}
+
+/* TECLA FÍSICA */
+.keycap {
+  position: relative;
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.5rem;
+  color: #e2e8f0;
+  height: 52px;
+  min-width: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow: 0 4px 0 #070a10, 0 5px 8px rgba(0, 0, 0, 0.4);
+  transition: all 0.08s ease;
+  cursor: pointer;
+  padding: 0 0.35rem;
+}
+
+/* Tamanhos de teclas especiais */
+.w-tab { min-width: 66px; font-size: 0.7rem; }
+.w-bksp { min-width: 82px; font-size: 0.7rem; }
+.w-caps { min-width: 78px; font-size: 0.7rem; }
+.w-enter { min-width: 86px; font-size: 0.75rem; background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%); }
+.w-shift-l { min-width: 90px; font-size: 0.7rem; }
+.w-shift-r { min-width: 98px; font-size: 0.7rem; }
+.w-ctrl { min-width: 58px; font-size: 0.7rem; }
+.w-alt { min-width: 54px; font-size: 0.7rem; }
+.w-win { min-width: 46px; font-size: 0.75rem; }
+.w-space { flex: 1; max-width: 320px; font-size: 0.75rem; }
+
+/* Caractere shift e secundário */
+.key-shift-char {
+  font-size: 0.65rem;
+  color: #94a3b8;
+  line-height: 1;
+}
+
+.key-primary-char {
+  line-height: 1.1;
+}
+
+/* Indicador de dedo (barra de cor na base da tecla) */
+.finger-bar {
+  position: absolute;
+  bottom: 3px;
+  left: 6px;
+  right: 6px;
+  height: 3px;
+  border-radius: 2px;
+  opacity: 0.75;
+}
+
+/* Teclas com saliência tátil de ancoragem (F e J) */
+.keycap.homing::after {
+  content: '';
+  position: absolute;
+  bottom: 8px;
+  width: 14px;
+  height: 2px;
+  background: #ffffff;
+  border-radius: 1px;
+  opacity: 0.8;
+}
+
+/* ESTADO: TECLA PRESSIONADA (FÍSICA OU VIRTUAL) */
+.keycap.pressed {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #070a10, 0 2px 4px rgba(0, 0, 0, 0.4);
+  background: #334155;
+  filter: brightness(1.25);
+}
+
+/* ESTADO: TECLA ALVO / PRÓXIMA A SER PRESSIONADA */
+.keycap.target-key {
+  border-color: #ffffff;
+  box-shadow: 0 0 14px var(--target-color, #6366f1), 0 4px 0 #070a10;
+  animation: keyGlow 0.8s infinite alternate ease-in-out;
+  color: #ffffff;
+}
+
+@keyframes keyGlow {
+  0% { transform: translateY(0); filter: brightness(1.15); }
+  100% { transform: translateY(-2px); filter: brightness(1.4); }
+}
+
+/* ESTADO: TECLA SHIFT NECESSÁRIA */
+.keycap.target-shift {
+  border-color: #f59e0b;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.8), 0 4px 0 #070a10;
+  animation: shiftGlow 0.8s infinite alternate ease-in-out;
+}
+
+@keyframes shiftGlow {
+  0% { filter: brightness(1.1); }
+  100% { filter: brightness(1.35); }
+}
+
+/* ==========================================================================
+   ILUSTRAÇÃO DAS MÃOS ERGONÔMICAS
+   ========================================================================== */
+.hands-guide-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3rem;
+  padding: 0.5rem 0;
+}
+
+.hand-visual {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.25rem;
+  padding: 0.75rem 1.25rem;
+}
+
+.hand-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.finger-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.15s ease;
+}
+
+.finger-bone {
+  width: 24px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.15s ease;
+}
+
+/* Altura anatômica dos dedos */
+.f-pinky { height: 48px; }
+.f-ring { height: 64px; }
+.f-middle { height: 72px; }
+.f-index { height: 60px; }
+.f-thumb { height: 38px; }
+
+.finger-name-tag {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: #64748b;
+  text-align: center;
+}
+
+/* DEDO ATIVO ILUMINADO */
+.finger-slot.active .finger-bone {
+  background: var(--active-color, #6366f1);
+  border-color: #ffffff;
+  box-shadow: 0 0 16px var(--active-color, #6366f1);
+  transform: translateY(-4px) scale(1.08);
+}
+
+.finger-slot.active .finger-name-tag {
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.text-white {
+  color: #ffffff !important;
+}
+
+.text-xs {
+  font-size: 0.75rem !important;
+}
+
+/* ==========================================================================
+   MODAIS & TELAS DE RESULTADOS
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 15, 30, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-overlay.hidden {
+  display: none !important;
+}
+
+.modal-card {
+  background: #111827;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1.5rem;
+  max-width: 520px;
+  width: 100%;
+  padding: 2rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  position: relative;
+  animation: modalEnter 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalEnter {
+  0% { transform: scale(0.92) translateY(10px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.star-rating-box {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 2.5rem;
+  margin: 1rem 0;
+}
+
+.star-icon {
+  filter: grayscale(1) opacity(0.3);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.star-icon.active {
+  filter: none;
+  transform: scale(1.15);
+  animation: starPop 0.4s ease;
+}
+
+@keyframes starPop {
+  0% { transform: scale(0.5); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1.15); }
+}
+
+.results-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+.result-stat-cell {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  padding: 0.85rem;
+}
+
+.result-stat-cell span {
+  display: block;
+}
+
+.result-stat-cell .label {
+  font-size: 0.65rem;
+  color: #94a3b8;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.result-stat-cell .val {
+  font-size: 1.5rem;
+  font-weight: 900;
+  font-family: 'JetBrains Mono', monospace;
+  color: #ffffff;
+  margin-top: 0.25rem;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.btn-primary {
+  flex: 1;
+  padding: 0.85rem 1.25rem;
+  border-radius: 0.85rem;
+  font-weight: 800;
+  font-size: 0.9rem;
+  background: linear-gradient(135deg, #4f46e5, #4338ca);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.4);
+  transition: all 0.15s ease;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.6);
+}
+
+.btn-secondary {
+  flex: 1;
+  padding: 0.85rem 1.25rem;
+  border-radius: 0.85rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   DRAWER / SELETOR DE LIÇÕES
+   ========================================================================== */
+.lessons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.75rem;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 0.5rem;
+  margin: 1rem 0;
+  scrollbar-width: thin;
+}
+
+.lesson-card-item {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.85rem;
+  padding: 0.85rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.lesson-card-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(99, 102, 241, 0.5);
+  transform: translateY(-2px);
+}
+
+.lesson-card-item.active {
+  background: rgba(79, 70, 229, 0.2);
+  border-color: #6366f1;
+}
+
+.lesson-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.lesson-num-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  background: #312e81;
+  color: #c7d2fe;
+  padding: 0.15rem 0.5rem;
+  border-radius: 0.4rem;
+}
+
+.lesson-card-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.lesson-card-desc {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  line-height: 1.3;
+}
+
+/* ==========================================================================
+   RODAPÉ INSTITUCIONAL
+   ========================================================================== */
+.app-footer {
+  background: rgba(15, 23, 42, 0.85);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.75rem 1.5rem;
+  font-size: 0.75rem;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+}
+
+.app-footer a {
+  color: #818cf8;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.app-footer a:hover {
+  text-decoration: underline;
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 900px) {
+  .keyboard-container {
+    transform: scale(0.85);
+    transform-origin: top center;
+  }
+  .hud-bar {
+    grid-template-columns: 1fr 1fr;
+  }
+}

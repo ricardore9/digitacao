@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Desafio de Digitação | SODIPROM - CAMP Diadema</title>
+  <script>
+    // Redireciona para o projeto principal da pasta digita
+    window.location.replace('../digita/index.html');
+  </script>
+  
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Desafio de Digitação - Projeto Manancial" />
+  <meta name="twitter:description" content="Teste sua velocidade de digitação e entre para o ranking do Projeto Manancial!" />
+  <meta name="twitter:image" content="https://projetomanancial.com.br/imgs/capa-game-digita-sm.jpg" />
+
+  <!-- Fonte + Tailwind -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Tone.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+
+  <style>
+    :root {
+      --primary: #5A67D8;
+      --primary-dark: #4c51bf;
+      --success: #38A169;
+      --danger: #e53e3e;
+      --warning: #DD6B20;
+      --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-gradient);
+      color: #2d3748;
+      user-select: none; /* Bloqueia seleção de texto */
+    }
+
+    /* Telas */
+    .screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+    .screen--hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    /* Menu Inicial */
+    .menu-card {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 2.5rem;
+      border-radius: 24px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+      max-width: 600px;
+      width: 90%;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    /* Layout do Jogo */
+    #main-layout {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      padding: 15px;
+      gap: 15px;
+      box-sizing: border-box;
+    }
+    #play-area {
+      flex: 4;
+      height: 100%;
+      background-color: #edf2f7;
+      border: 3px dashed #A0AEC0;
+      border-radius: 20px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 2px 12px rgba(0,0,0,0.1);
+    }
+    #controls-panel {
+      flex: 1.2;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+      height: 100%;
+      overflow-y: auto;
+    }
+
+    .falling-item {
+      position: absolute;
+      padding: 12px 20px;
+      background-color: var(--primary);
+      color: white;
+      border-radius: 12px;
+      font-size: 1.6rem;
+      font-weight: 700;
+      white-space: nowrap;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+      border-bottom: 4px solid rgba(0,0,0,0.2);
+      transform: translateZ(0);
+    }
+
+    .typed-correct-char { color: #c6f6d5; text-shadow: 0 0 5px rgba(0,0,0,0.2); }
+
+    /* Botões */
+    .btn {
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn--primary { background: var(--primary); color: white; }
+    .btn--primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
+    .btn--success { background: var(--success); color: white; }
+    .btn--success:hover { background: #2f855a; transform: translateY(-2px); }
+    .btn--danger { background: var(--danger); color: white; }
+    .btn--danger:hover { background: #c53030; }
+
+    /* Overlays */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    #countdown-timer {
+      font-size: 6rem;
+      font-weight: 800;
+      margin-top: 1rem;
+      color: var(--warning);
+      text-shadow: 0 0 20px rgba(221, 107, 32, 0.5);
+    }
+
+    /* Ranking */
+    .ranking-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 12px;
+      background: #f7fafc;
+      border-radius: 8px;
+      margin-bottom: 4px;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 1024px) {
+      #main-layout { flex-direction: column; overflow-y: auto; }
+      #play-area { height: 50vh; min-height: 350px; flex: none; }
+      #controls-panel { height: auto; flex: none; }
+    }
+  </style>
+</head>
+<body oncontextmenu="return false;"> <!-- Bloqueia clique direito -->
+
+  <!-- TELA 1: MENU INICIAL -->
+  <div id="screen-menu" class="screen">
+    <div class="menu-card reveal">
+      <h1 class="text-4xl font-bold text-indigo-700 mb-4">Desafio de Digitação</h1>
+      <p class="text-gray-600 mb-6">Aperfeiçoe sua velocidade e precisão neste desafio épico! Digite as palavras antes que elas atinjam o chão.</p>
+      
+      <div class="bg-indigo-50 p-4 rounded-xl mb-6 text-left border-l-4 border-indigo-500">
+        <h3 class="font-bold text-indigo-800 mb-2">Como Jogar:</h3>
+        <ul class="text-sm text-gray-700 space-y-1">
+          <li>• <strong>Digitação Direta:</strong> Digite a palavra que está caindo. O jogo valida automaticamente assim que você terminar, sem precisar apertar <strong>Enter</strong>!</li>
+          <li>• <strong>Errou uma letra?</strong> Se você errar, a digitação daquela palavra reinicia e você deve começar novamente do início dela.</li>
+          <li>• <strong>Velocidade conta:</strong> Quanto mais rápido você completar a palavra, mais pontos ganhará.</li>
+          <li>• <strong>Desafio:</strong> Tente chegar ao fim de todas as fases e conquistar seu lugar no Top 10!</li>
+        </ul>
+      </div>
+
+      <div class="flex flex-col gap-4 mb-8">
+        <label class="font-semibold text-gray-700">Escolha seu Nível de Desafio:</label>
+        <div class="flex gap-4 justify-center">
+          <button id="mode-beginner" class="mode-btn btn border-2 border-indigo-500 bg-indigo-500 text-white flex-1" data-mode="beginner">
+            🌱 Iniciante
+          </button>
+          <button id="mode-expert" class="mode-btn btn border-2 border-indigo-500 text-indigo-600 hover:bg-indigo-50 flex-1" data-mode="expert">
+            👑 Rei Digitador
+          </button>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-3 justify-center">
+        <button id="btn-start" class="btn btn--success w-full text-xl py-4">INICIAR DESAFIO</button>
+        <button id="btn-view-ranking-menu" class="btn bg-indigo-100 text-indigo-700 font-bold flex-1 py-3 text-sm" title="Ver Ranking">
+          🏆 RANKING
+        </button>
+        <button id="btn-about-menu" class="btn bg-indigo-100 text-indigo-700 font-bold flex-1 py-3 text-sm" title="Sobre o Jogo">
+          ℹ️ SOBRE O JOGO
+        </button>
+        <button id="btn-sound-menu" class="btn btn--primary flex-1 py-3 text-sm">
+          🔊 SOM: LIGADO
+        </button>
+      </div>
+
+      <div class="mt-4">
+        <button id="btn-study-mode" class="btn bg-orange-100 text-orange-700 font-bold w-full py-3 border-2 border-orange-200 hover:bg-orange-200">
+          📖 MODO ESTUDO (TREINAR FASES)
+        </button>
+      </div>
+
+      <div class="mt-10 pt-6 border-t border-gray-200">
+        <a href="../../index.html" target="_blank" class="inline-block transition-transform hover:scale-105">
+          <img src="../../imgs/Logo-projeto.jpg" alt="Logo Projeto Manancial" class="h-16 mx-auto rounded-lg shadow-sm">
+          <span class="text-xs text-gray-400 mt-2 block uppercase tracking-widest">Projeto Manancial</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- TELA: SELEÇÃO DE FASES (MODO ESTUDO) -->
+  <div id="screen-study" class="screen screen--hidden">
+    <div class="menu-card max-w-4xl max-h-[90vh] flex flex-col">
+      <h2 class="text-3xl font-black text-orange-600 mb-2">Modo Estudo</h2>
+      <p class="text-gray-600 mb-6">Escolha uma fase para praticar. Seus pontos não serão salvos no ranking.</p>
+      
+      <div id="study-phases-list" class="grid grid-cols-1 md:grid-cols-2 gap-3 overflow-y-auto pr-2 mb-6">
+        <!-- JS preenche aqui -->
+      </div>
+
+      <button id="btn-back-study" class="btn bg-gray-200 text-gray-700 w-full py-4 font-bold">VOLTAR AO MENU</button>
+    </div>
+  </div>
+
+  <!-- TELA 2: ÁREA DO JOGO -->
+  <div id="screen-game" class="screen screen--hidden">
+    <div id="main-layout">
+      <div id="play-area">
+        <!-- Palavras caindo aqui -->
+      </div>
+
+      <div id="controls-panel">
+        <div class="text-center">
+          <h2 class="text-xl font-bold text-indigo-600">Status do Jogo</h2>
+        </div>
+        
+        <div class="grid grid-cols-1 gap-2">
+          <div class="bg-green-50 p-3 rounded-lg border border-green-200">
+            <span class="text-xs uppercase font-bold text-green-600 block">Pontuação</span>
+            <span id="display-score" class="text-2xl font-black text-green-700">0</span>
+          </div>
+          
+          <div class="bg-orange-50 p-3 rounded-lg border border-orange-200">
+            <span class="text-xs uppercase font-bold text-orange-600 block">Fase Atual</span>
+            <span id="display-level" class="text-lg font-bold text-orange-700">Carregando...</span>
+          </div>
+
+          <div id="expert-stats" class="bg-red-50 p-3 rounded-lg border border-red-200 hidden">
+            <span class="text-xs uppercase font-bold text-red-600 block">Vidas</span>
+            <span id="display-lives" class="text-2xl font-black text-red-700">❤️❤️❤️</span>
+          </div>
+        </div>
+
+        <div class="mt-2">
+          <div id="display-message" class="text-sm font-medium text-center py-2 min-h-[40px] text-gray-500 italic">
+            Prepare-se...
+          </div>
+        </div>
+
+        <div class="bg-gray-100 p-4 rounded-xl text-center">
+          <span class="text-xs text-gray-500 uppercase block mb-1">Digitando:</span>
+          <div id="display-input" class="text-2xl font-mono font-bold text-indigo-600 min-h-[36px]"></div>
+        </div>
+
+        <div class="mt-auto pt-4 flex flex-col gap-2">
+          <button id="btn-quit" class="btn btn--danger w-full">DESISTIR</button>
+          <div class="flex gap-2">
+            <button id="btn-sound-game" class="btn btn--primary flex-1">🔊 SOM: LIGADO</button>
+            <a href="../../index.html" target="_blank" class="btn bg-blue-500 text-white flex-1 text-xs">SITE OFICIAL</a>
+          </div>
+        </div>
+
+        <div class="mt-4 border-t pt-4">
+          <h3 class="font-bold text-indigo-800 text-sm mb-2 flex items-center gap-2">🏆 TOP 10 MUNDIAL</h3>
+          <div id="ranking-list" class="space-y-1 max-h-[150px] overflow-y-auto">
+            <!-- Ranking real-time -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TELA: SOBRE O JOGO -->
+  <div id="screen-about" class="overlay screen--hidden">
+    <div class="menu-card text-left max-w-2xl">
+      <h2 class="text-3xl font-black text-indigo-700 mb-6 border-b-4 border-indigo-200 pb-2">Sobre este Jogo</h2>
+      
+      <div class="space-y-4 text-gray-700">
+        <p class="font-bold text-lg text-indigo-600">Este desafio faz parte do projeto de Inclusão Digital do Projeto Manancial.</p>
+        
+        <p>Acreditamos que a tecnologia é uma ferramenta poderosa de transformação social. Por isso, oferecemos <strong>aulas de informática</strong> para diversos públicos, abrangendo desde crianças em fase escolar até a terceira idade.</p>
+        
+        <p>Nosso objetivo é promover a <strong>alfabetização digital</strong> e a <strong>capacitação tecnológica</strong>, preparando nossos alunos para as exigências do mercado de trabalho atual e combatendo a exclusão social através do conhecimento.</p>
+        
+        <div class="bg-indigo-50 p-4 rounded-xl border-l-4 border-indigo-400 italic">
+          "Mais do que aprender a usar um computador, nossos alunos aprendem a abrir janelas para o mundo."
+        </div>
+      </div>
+
+      <div class="mt-8 flex gap-4">
+        <button id="btn-back-from-about" class="btn btn--primary flex-1 py-4">VOLTAR AO MENU</button>
+        <a href="../../index.html" target="_blank" class="btn btn--success px-6">CONHECER O PROJETO</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- TELA 3: TRANSIÇÃO DE FASE -->
+  <div id="screen-transition" class="overlay screen--hidden">
+    <h2 class="text-3xl font-bold mb-2">FASE CONCLUÍDA!</h2>
+    <div class="w-24 h-1 bg-indigo-500 mb-8"></div>
+    
+    <div id="phase-info" class="max-w-md">
+      <h3 id="next-phase-name" class="text-4xl font-black text-indigo-400 mb-4">FASE 2</h3>
+      <p id="next-phase-desc" class="text-xl text-gray-300">Prepare os dedos! Agora as palavras terão 2 letras e cairão um pouco mais rápido.</p>
+    </div>
+
+    <div class="mt-12">
+      <span class="text-gray-400 uppercase tracking-widest text-sm">Próxima fase em</span>
+      <div id="countdown-timer">5</div>
+    </div>
+  </div>
+
+  <!-- TELA 4: FIM DE JOGO -->
+  <div id="screen-gameover" class="overlay screen--hidden">
+    <div class="menu-card text-gray-800">
+      <h2 id="gameover-title" class="text-4xl font-black text-red-600 mb-2">FIM DE JOGO</h2>
+      <p id="gameover-msg" class="text-gray-600 mb-6">Não foi dessa vez, mas você lutou bravamente!</p>
+      
+      <div class="bg-indigo-600 text-white p-6 rounded-2xl mb-8 transform -rotate-2">
+        <span class="block text-sm uppercase opacity-75">Sua Pontuação Final</span>
+        <span id="final-score" class="text-6xl font-black">0</span>
+      </div>
+
+      <div id="ranking-form" class="mb-8">
+        <p class="font-semibold mb-3">Deseja entrar para o ranking?</p>
+        <div class="flex gap-2">
+          <input type="text" id="player-name" maxlength="15" placeholder="Seu nome ou apelido" class="flex-1 p-3 border-2 border-indigo-200 rounded-xl focus:border-indigo-500 outline-none transition-all">
+          <button id="btn-save-score" class="btn btn--success px-8">SALVAR</button>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-3">
+        <div class="flex gap-4">
+          <button id="btn-restart" class="btn btn--primary flex-1 py-4">TENTAR NOVAMENTE</button>
+          <button id="btn-back-menu" class="btn bg-gray-200 text-gray-700 flex-1 py-4">MENU INICIAL</button>
+        </div>
+        <button id="btn-view-ranking-end" class="btn bg-indigo-100 text-indigo-700 w-full py-3">VER RANKING COMPLETO 🏆</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Redirecionamento Mobile
+    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+      if (confirm("Identificamos que você está no celular. Deseja abrir a versão com teclado virtual otimizado?")) {
+        window.location.href = "../digita-mobile/index.html";
+      }
+    }
+
+    // ==========================================
+    // SEGURANÇA: Bloqueio de Atalhos de Desenvolvedor
+    // ==========================================
+    document.addEventListener('keydown', function(e) {
+      if (e.keyCode == 123) return false; // F12
+      if (e.ctrlKey && e.shiftKey && e.keyCode == 73) return false; // Ctrl+Shift+I
+      if (e.ctrlKey && e.shiftKey && e.keyCode == 74) return false; // Ctrl+Shift+J
+      if (e.ctrlKey && e.keyCode == 85) return false; // Ctrl+U
+    });
+
+    // ==========================================
+    // 1. CARREGAMENTO REMOTO DE DADOS (Protegido no Servidor)
+    // ==========================================
+    let PHASES_DATA = [];
+
+    async function loadSecureConfig() {
+      try {
+        const response = await fetch('config.php');
+        PHASES_DATA = await response.json();
+        carregarRanking();
+      } catch (err) {
+        console.error("Erro fatal de segurança ao carregar configurações.");
+        document.body.innerHTML = "<div style='color:white;text-align:center;margin-top:20%;'>Erro de conexão com o servidor seguro.</div>";
+      }
+    }
+
+    // ==========================================
+    // 2. ESTADO GLOBAL E ELEMENTOS
+    // ==========================================
+    const state = {
+      active: false,
+      mode: 'beginner',
+      score: 0,
+      lives: 3,
+      phaseIdx: 0,
+      completedInPhase: 0,
+      typed: "",
+      currentWord: null,
+      currentWordTime: 0,
+      fallSpeed: 1.0,
+      loopId: null,
+      spawnId: null,
+      sound: true,
+      studyMode: false
+    };
+
+    const UI = {
+      screens: {
+        menu: document.getElementById('screen-menu'),
+        game: document.getElementById('screen-game'),
+        transition: document.getElementById('screen-transition'),
+        gameover: document.getElementById('screen-gameover'),
+        about: document.getElementById('screen-about'),
+        study: document.getElementById('screen-study')
+      },
+      game: {
+        playArea: document.getElementById('play-area'),
+        score: document.getElementById('display-score'),
+        level: document.getElementById('display-level'),
+        lives: document.getElementById('display-lives'),
+        expertStats: document.getElementById('expert-stats'),
+        input: document.getElementById('display-input'),
+        message: document.getElementById('display-message'),
+        ranking: document.getElementById('ranking-list')
+      },
+      trans: {
+        name: document.getElementById('next-phase-name'),
+        desc: document.getElementById('next-phase-desc'),
+        timer: document.getElementById('countdown-timer')
+      },
+      over: {
+        title: document.getElementById('gameover-title'),
+        msg: document.getElementById('gameover-msg'),
+        score: document.getElementById('final-score'),
+        nameInput: document.getElementById('player-name'),
+        rankingForm: document.getElementById('ranking-form')
+      }
+    };
+
+    // ==========================================
+    // 3. SISTEMA DE ÁUDIO
+    // ==========================================
+    const AUDIO = {
+      synth: new Tone.PolySynth(Tone.Synth).toDestination(),
+      init() {
+        this.synth.set({ oscillator: { type: 'triangle' }, envelope: { attack: 0.05, release: 0.2 } });
+        Tone.Destination.volume.value = -12;
+      },
+      play(type) {
+        if (!state.sound) return;
+        if (Tone.context.state !== 'running') Tone.start();
+        
+        switch(type) {
+          case 'correct': this.synth.triggerAttackRelease(['E4', 'G4'], '8n'); break;
+          case 'wrong': this.synth.triggerAttackRelease(['C3'], '4n'); break;
+          case 'phase': this.synth.triggerAttackRelease(['C4', 'E4', 'G4', 'C5'], '4n'); break;
+          case 'spawn': this.synth.triggerAttackRelease(['G5'], '32n', undefined, 0.1); break;
+        }
+      }
+    };
+    AUDIO.init();
+
+    // ==========================================
+    // 4. LÓGICA DE NAVEGAÇÃO
+    // ==========================================
+    function showScreen(screenKey) {
+      Object.keys(UI.screens).forEach(key => {
+        UI.screens[key].classList.toggle('screen--hidden', key !== screenKey);
+      });
+    }
+
+    // ==========================================
+    // 5. LÓGICA DO JOGO
+    // ==========================================
+    
+    function initGame() {
+      state.score = 0;
+      state.lives = 3;
+      state.phaseIdx = 0;
+      state.completedInPhase = 0;
+      state.active = true;
+      state.typed = "";
+      state.studyMode = false;
+      
+      UI.game.score.textContent = "0";
+      UI.game.input.textContent = "";
+      UI.game.message.textContent = "Prepare-se!";
+      UI.game.playArea.innerHTML = "";
+      
+      if (state.mode === 'expert') {
+        UI.game.expertStats.classList.remove('hidden');
+        updateLivesUI();
+      } else {
+        UI.game.expertStats.classList.add('hidden');
+      }
+
+      showScreen('game');
+      startPhase();
+    }
+
+    function startPhase() {
+      if (PHASES_DATA.length === 0) return;
+      const phase = PHASES_DATA[state.phaseIdx];
+      state.fallSpeed = phase.speed;
+      UI.game.level.textContent = phase.name;
+      
+      setTimeout(spawnItem, 500);
+      if (!state.loopId) gameLoop();
+    }
+
+    function startStudyPhase(idx) {
+      state.studyMode = true;
+      state.phaseIdx = idx;
+      state.score = 0;
+      state.completedInPhase = 0;
+      state.active = true;
+      state.typed = "";
+      
+      UI.game.score.textContent = "0 (Estudo)";
+      UI.game.input.textContent = "";
+      UI.game.message.textContent = "Modo Estudo Ativo";
+      UI.game.playArea.innerHTML = "";
+      UI.game.expertStats.classList.add('hidden');
+
+      showScreen('game');
+      startPhase();
+    }
+
+    function spawnItem() {
+      if (!state.active) return;
+      if (state.currentWord) { state.currentWord.remove(); }
+
+      const phase = PHASES_DATA[state.phaseIdx];
+      if (state.completedInPhase >= phase.count) {
+        goToNextPhase();
+        return;
+      }
+
+      const word = phase.items[Math.floor(Math.random() * phase.items.length)];
+      state.typed = "";
+      state.currentWordText = word;
+      state.currentWordTime = Date.now();
+      UI.game.input.textContent = "";
+
+      const div = document.createElement('div');
+      div.className = 'falling-item';
+      div.textContent = word;
+      UI.game.playArea.appendChild(div);
+      
+      const maxWidth = UI.game.playArea.offsetWidth - div.offsetWidth - 20;
+      div.style.left = (Math.random() * maxWidth + 10) + 'px';
+      div.style.top = '0px';
+      
+      state.currentWord = div;
+      AUDIO.play('spawn');
+    }
+
+    function gameLoop() {
+      if (!state.active) return;
+      if (state.currentWord) {
+        let top = parseFloat(state.currentWord.style.top);
+        top += state.fallSpeed;
+        state.currentWord.style.top = top + 'px';
+        if (top + state.currentWord.offsetHeight >= UI.game.playArea.offsetHeight) {
+          handleWordLoss();
+        }
+      }
+      state.loopId = requestAnimationFrame(gameLoop);
+    }
+
+    function handleWordLoss() {
+      AUDIO.play('wrong');
+      UI.game.message.textContent = `Puxa! Perdeu: "${state.currentWordText}"`;
+      if (state.mode === 'expert') {
+        state.lives--;
+        updateLivesUI();
+        if (state.lives <= 0) { endGame(false); return; }
+      } else {
+        state.score = Math.max(0, state.score - 15);
+        UI.game.score.textContent = state.score;
+      }
+      state.currentWord.remove();
+      state.currentWord = null;
+      setTimeout(spawnItem, 1000);
+    }
+
+    function updateLivesUI() {
+      UI.game.lives.textContent = "❤️".repeat(state.lives) + "🖤".repeat(3 - state.lives);
+    }
+
+    function handleKeydown(e) {
+      if (!state.active || !state.currentWord) return;
+      const char = e.key;
+      const target = state.currentWordText;
+      if (char.length !== 1 && char !== 'Enter' && char !== 'Backspace') return;
+      if (char === 'Enter') { if (state.typed === target) completeWord(); return; }
+      if (char === 'Backspace') { state.typed = state.typed.slice(0, -1); updateTypedUI(); return; }
+
+      const nextTyped = state.typed + char.toLowerCase();
+      if (target.toLowerCase().startsWith(nextTyped)) {
+        state.typed = nextTyped;
+        updateTypedUI();
+        if (state.typed === target.toLowerCase()) completeWord();
+      } else {
+        AUDIO.play('wrong');
+        state.score = Math.max(0, state.score - 2);
+        UI.game.score.textContent = state.score;
+        state.typed = "";
+        updateTypedUI();
+        state.currentWord.style.backgroundColor = '#e53e3e';
+        setTimeout(() => { if(state.currentWord) state.currentWord.style.backgroundColor = ''; }, 100);
+      }
+    }
+
+    function updateTypedUI() {
+      const target = state.currentWordText;
+      let html = "";
+      for (let i = 0; i < target.length; i++) {
+        if (i < state.typed.length) html += `<span class="text-green-500">${target[i]}</span>`;
+        else html += `<span class="text-gray-400">${target[i]}</span>`;
+      }
+      UI.game.input.innerHTML = html;
+      let fallingHtml = "";
+      for (let i = 0; i < target.length; i++) {
+        if (i < state.typed.length) fallingHtml += `<span class="typed-correct-char">${target[i]}</span>`;
+        else fallingHtml += target[i];
+      }
+      state.currentWord.innerHTML = fallingHtml;
+    }
+
+    function completeWord() {
+      AUDIO.play('correct');
+      const basePoints = state.currentWordText.length * 10;
+      const timeTaken = Date.now() - state.currentWordTime;
+      const speedBonus = Math.max(0, Math.floor((5000 - timeTaken) / 100));
+      const multiplier = (state.mode === 'expert' ? 2 : 1);
+      const totalGain = (basePoints + speedBonus) * multiplier;
+      state.score += totalGain;
+      UI.game.score.textContent = state.score;
+      UI.game.message.textContent = `Boa! +${totalGain} pontos!`;
+      state.completedInPhase++;
+      state.currentWord.remove();
+      state.currentWord = null;
+      setTimeout(spawnItem, 400);
+    }
+
+    function goToNextPhase() {
+      state.active = false;
+      cancelAnimationFrame(state.loopId);
+      state.loopId = null;
+      if (state.studyMode) { endGame(true); return; }
+      state.phaseIdx++;
+      if (state.phaseIdx >= PHASES_DATA.length) { endGame(true); return; }
+      const nextPhase = PHASES_DATA[state.phaseIdx];
+      UI.trans.name.textContent = nextPhase.name;
+      UI.trans.desc.textContent = nextPhase.desc;
+      showScreen('transition');
+      AUDIO.play('phase');
+      let count = 5;
+      UI.trans.timer.textContent = count;
+      const interval = setInterval(() => {
+        count--;
+        UI.trans.timer.textContent = count;
+        if (count <= 0) {
+          clearInterval(interval);
+          state.active = true;
+          state.completedInPhase = 0;
+          showScreen('game');
+          startPhase();
+        }
+      }, 1000);
+    }
+
+    function endGame(victory = false) {
+      state.active = false;
+      cancelAnimationFrame(state.loopId);
+      state.loopId = null;
+      if (state.spawnId) clearTimeout(state.spawnId);
+      UI.over.score.textContent = state.score;
+      UI.over.title.textContent = victory ? "DESAFIO CONCLUÍDO! 🏆" : "FIM DE JOGO! 💀";
+      if (state.studyMode) {
+        UI.over.title.textContent = "TREINO CONCLUÍDO! 📖";
+        UI.over.msg.textContent = "Ótimo trabalho!";
+        UI.over.rankingForm.classList.add('hidden');
+      } else {
+        UI.over.rankingForm.classList.remove('hidden');
+      }
+      showScreen('gameover');
+      carregarRanking();
+    }
+
+    function carregarRanking() {
+      fetch("listar_ranking_final.php")
+        .then(res => res.json())
+        .then(data => {
+          const list = data.slice(0, 10).map(item => `
+            <div class="ranking-item">
+              <span class="font-bold">${item.modo === 'expert' ? '👑' : '🌱'} ${item.nome}</span>
+              <span class="text-indigo-600 font-mono">${item.pontos}</span>
+            </div>
+          `).join('');
+          UI.game.ranking.innerHTML = list || "<p class='text-xs text-gray-400'>Nenhum registro ainda...</p>";
+        });
+    }
+
+    function salvarPlacar() {
+      const nome = UI.over.nameInput.value.trim();
+      if (!nome) return;
+      const btn = document.getElementById('btn-save-score');
+      btn.disabled = true;
+      fetch("salvar_ranking_final.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `nome=${encodeURIComponent(nome)}&pontos=${state.score}&modo=${state.mode}&fase=${state.phaseIdx + 1}`
+      }).then(() => {
+        UI.over.rankingForm.innerHTML = "<div class='bg-green-100 text-green-700 p-3 rounded-xl font-bold'>✓ Salvo!</div>";
+        carregarRanking();
+      });
+    }
+
+    // Event Listeners
+    document.getElementById('btn-start').addEventListener('click', initGame);
+    document.getElementById('btn-quit').addEventListener('click', () => { if(confirm('Sair?')) endGame(false); });
+    document.getElementById('btn-restart').addEventListener('click', initGame);
+    document.getElementById('btn-back-menu').addEventListener('click', () => location.reload());
+    document.getElementById('btn-save-score').addEventListener('click', salvarPlacar);
+    document.addEventListener('keydown', handleKeydown);
+    const openRanking = () => window.open('ranking_completo_final.php', '_blank');
+    document.getElementById('btn-view-ranking-menu').addEventListener('click', openRanking);
+    document.getElementById('btn-view-ranking-end').addEventListener('click', openRanking);
+    document.getElementById('btn-about-menu').addEventListener('click', () => showScreen('about'));
+    document.getElementById('btn-back-from-about').addEventListener('click', () => showScreen('menu'));
+    document.getElementById('btn-study-mode').addEventListener('click', () => { renderStudyPhases(); showScreen('study'); });
+    document.getElementById('btn-back-study').addEventListener('click', () => showScreen('menu'));
+
+    function renderStudyPhases() {
+      const list = document.getElementById('study-phases-list');
+      list.innerHTML = PHASES_DATA.map(phase => `
+        <div class="bg-white p-4 rounded-xl border-2 border-gray-100 hover:border-orange-300">
+          <h4 class="font-bold text-indigo-700">${phase.name}</h4>
+          <p class="text-xs text-gray-500 mb-2">${phase.desc}</p>
+          <button onclick="startStudyPhase(${phase.id})" class="btn bg-orange-500 text-white w-full py-2 text-sm">PRATICAR</button>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('btn-sound-menu').addEventListener('click', function() {
+      state.sound = !state.sound;
+      this.innerHTML = state.sound ? "🔊 SOM: LIGADO" : "🔇 SOM: DESLIGADO";
+    });
+
+    document.getElementById('btn-sound-game').addEventListener('click', function() {
+      state.sound = !state.sound;
+      this.textContent = state.sound ? "🔊 SOM: LIGADO" : "🔇 SOM: DESLIGADO";
+      document.getElementById('btn-sound-menu').innerHTML = this.textContent;
+    });
+
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.mode-btn').forEach(b => {
+          b.classList.remove('bg-indigo-500', 'text-white');
+          b.classList.add('text-indigo-600');
+        });
+        btn.classList.add('bg-indigo-500', 'text-white');
+        state.mode = btn.dataset.mode;
+      });
+    });
+
+    // Iniciar carregamento seguro
+    loadSecureConfig();
+  </script>
+</body>
+</html>
