@@ -1,0 +1,1078 @@
+/* ==========================================================================
+   SODIPROM - CAMP Diadema | Balcão Fiscal: Desafio da Nota Fiscal
+   Estilo Lúdico, Imersivo e Profissional
+   ========================================================================== */
+
+:root {
+  --primary-navy: #0b1120;
+  --desk-wood: #2c1a0e;
+  --desk-wood-light: #452a18;
+  --desk-mat: #1e293b;
+  --desk-border: #334155;
+  --paper-bg: #fffdf7;
+  --paper-border: #e2d9c8;
+  --paper-ink: #1e293b;
+  --accent-gold: #f59e0b;
+  --accent-emerald: #10b981;
+  --accent-rose: #f43f5e;
+  --accent-indigo: #6366f1;
+  --accent-cyan: #06b6d4;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --stamp-red: #dc2626;
+  --stamp-green: #059669;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: #090d16;
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  user-select: none;
+}
+
+/* ==========================================================================
+   TOPO INSTITUCIONAL / BARRA SUPERIOR
+   ========================================================================== */
+.fiscal-header {
+  background: rgba(11, 17, 32, 0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.65rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 40;
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.brand-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+}
+
+.brand-logo {
+  height: 36px;
+  object-fit: contain;
+}
+
+.brand-title-wrap h1 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  background: linear-gradient(90deg, #ffffff, #fef08a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.1;
+}
+
+.brand-title-wrap p {
+  font-size: 0.68rem;
+  color: var(--accent-gold);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btn-icon {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f1f5f9;
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.btn-icon:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.btn-icon--back {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.3);
+  color: #c7d2fe;
+  text-decoration: none;
+}
+
+/* ==========================================================================
+   HUD E BARRA DE STATUS DO JOGO
+   ========================================================================== */
+.hud-bar {
+  background: rgba(15, 23, 42, 0.9);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.6rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.level-info-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.badge-tag {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #1e1b4b;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.level-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.hud-metrics {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.metric-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.metric-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+.metric-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.1;
+}
+
+.metric-val--score {
+  color: #fbbf24;
+}
+
+.metric-val--combo {
+  color: #f43f5e;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.metric-val--goal {
+  color: #10b981;
+}
+
+/* ==========================================================================
+   CENÁRIO PRINCIPAL: O BALCÃO DE ESCRITÓRIO LÚDICO
+   ========================================================================== */
+.game-stage {
+  flex: 1;
+  position: relative;
+  background: radial-gradient(circle at 50% 20%, #1e293b 0%, #0f172a 60%, #020617 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1rem 1.5rem 1.5rem;
+  overflow: hidden;
+}
+
+/* Luz suave de luminária de escritório sobre o balcão */
+.desk-light-glow {
+  position: absolute;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 700px;
+  height: 500px;
+  background: radial-gradient(ellipse at center, rgba(251, 191, 36, 0.12) 0%, rgba(251, 191, 36, 0) 70%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* A Bancada / Balcão de Madeira com Tapete de Escritório */
+.desk-counter {
+  width: 100%;
+  max-width: 1100px;
+  flex: 1;
+  min-height: 480px;
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1.5rem;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), inset 0 2px 6px rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem;
+}
+
+/* Pilha de entrada (esquerda) e Pilha de saída carimbada (direita) */
+.desk-accessory {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.desk-inbox {
+  top: 1.5rem;
+  left: 1.5rem;
+  background: rgba(30, 41, 59, 0.8);
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 1rem;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.desk-outbox {
+  top: 1.5rem;
+  right: 1.5rem;
+  background: rgba(16, 185, 129, 0.1);
+  border: 2px solid rgba(16, 185, 129, 0.3);
+  border-radius: 1rem;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: #34d399;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Área central onde a Nota Fiscal se posiciona */
+.counter-center-zone {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 1rem 0;
+}
+
+/* ==========================================================================
+   A NOTA FISCAL (DANFE LÚDICA)
+   ========================================================================== */
+.invoice-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 650px;
+  perspective: 1000px;
+}
+
+.invoice-paper {
+  background: var(--paper-bg);
+  color: var(--paper-ink);
+  border-radius: 0.85rem;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--paper-border);
+  padding: 1.5rem;
+  position: relative;
+  transition: transform 0.2s ease;
+  overflow: hidden;
+}
+
+/* Efeito de papel com borda superior serrilhada / cabeçalho fiscal */
+.invoice-paper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: repeating-linear-gradient(45deg, #0284c7, #0284c7 10px, #0369a1 10px, #0369a1 20px);
+}
+
+/* Animações de entrada e saída */
+.invoice-paper.slide-in {
+  animation: paperSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.invoice-paper.slide-out {
+  animation: paperSlideOut 0.4s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+}
+
+.invoice-paper.shake-error {
+  animation: paperShake 0.35s ease-in-out;
+}
+
+@keyframes paperSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-40px) scale(0.95) rotate(-2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+}
+
+@keyframes paperSlideOut {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(140px, -60px) scale(0.85) rotate(12deg);
+  }
+}
+
+@keyframes paperShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-10px); }
+  40%, 80% { transform: translateX(10px); }
+}
+
+/* Cabeçalho do DANFE */
+.invoice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 2px dashed #cbd5e1;
+  padding-bottom: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.invoice-emitter {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.emitter-logo {
+  font-size: 2.2rem;
+  background: #f1f5f9;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.6rem;
+  border: 1px solid #e2e8f0;
+}
+
+.emitter-info h3 {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.emitter-info p {
+  font-size: 0.72rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.invoice-danfe-badge {
+  text-align: right;
+}
+
+.danfe-tag {
+  font-size: 0.75rem;
+  font-weight: 900;
+  background: #0f172a;
+  color: #ffffff;
+  padding: 0.2rem 0.6rem;
+  border-radius: 0.35rem;
+  display: inline-block;
+  margin-bottom: 0.2rem;
+  letter-spacing: 0.05em;
+}
+
+.danfe-serie {
+  font-size: 0.7rem;
+  color: #64748b;
+  font-weight: 700;
+}
+
+/* Grid de Campos Oficiais da Nota */
+.invoice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.invoice-field-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.field-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #64748b;
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.field-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: 0.03em;
+}
+
+/* DESTAQUE LÚDICO NO CAMPO ALVO A DIGITAR */
+.invoice-field-box.target-highlight {
+  background: #fef08a !important;
+  border: 2px solid #ca8a04 !important;
+  box-shadow: 0 0 18px rgba(234, 179, 8, 0.45);
+  animation: pulseTarget 1.2s infinite alternate;
+}
+
+.invoice-field-box.target-highlight .field-label {
+  color: #854d0e;
+}
+
+.invoice-field-box.target-highlight .field-value {
+  color: #713f12;
+}
+
+@keyframes pulseTarget {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(234, 179, 8, 0.3);
+  }
+  100% {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(234, 179, 8, 0.6);
+  }
+}
+
+/* Tabela de Itens */
+.invoice-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.72rem;
+  margin-bottom: 1rem;
+}
+
+.invoice-items-table th {
+  background: #f1f5f9;
+  color: #475569;
+  font-weight: 800;
+  text-align: left;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid #cbd5e1;
+  text-transform: uppercase;
+  font-size: 0.62rem;
+}
+
+.invoice-items-table td {
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  font-weight: 600;
+}
+
+.invoice-items-table td.mono-td {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+}
+
+/* Totalizador */
+.invoice-total-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+  border-top: 2px solid #0f172a;
+  padding-top: 0.75rem;
+}
+
+.total-title {
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #0f172a;
+}
+
+.total-value-display {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #047857;
+}
+
+/* ==========================================================================
+   CARIMBO VIRTUAL 3D (O IMPACTO DO ENTER)
+   ========================================================================== */
+.stamp-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-12deg) scale(0);
+  border: 4px solid var(--stamp-green);
+  border-radius: 0.75rem;
+  padding: 0.6rem 1.75rem;
+  color: var(--stamp-green);
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 6px 20px rgba(5, 150, 105, 0.35);
+  text-align: center;
+  line-height: 1.1;
+}
+
+.stamp-overlay .stamp-sub {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  display: block;
+  margin-top: 0.2rem;
+  border-top: 1px solid var(--stamp-green);
+  padding-top: 0.2rem;
+}
+
+/* Animação do impacto do carimbo */
+.stamp-overlay.stamp-active {
+  animation: stampImpact 0.32s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes stampImpact {
+  0% {
+    transform: translate(-50%, -50%) rotate(-18deg) scale(2.2);
+    opacity: 0;
+  }
+  60% {
+    transform: translate(-50%, -50%) rotate(-12deg) scale(0.95);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(-12deg) scale(1);
+    opacity: 0.95;
+  }
+}
+
+/* ==========================================================================
+   CONSOLE DE DIGITAÇÃO DO BALCÃO (AÇÃO DO JOGADOR)
+   ========================================================================== */
+.typing-console {
+  margin-top: 1.25rem;
+  width: 100%;
+  max-width: 650px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 2px solid var(--accent-indigo);
+  border-radius: 1.25rem;
+  padding: 1rem 1.25rem;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  position: relative;
+  z-index: 20;
+}
+
+.console-prompt-text {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #c7d2fe;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.console-instruction-pill {
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.console-input-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.console-display-input {
+  flex: 1;
+  background: #020617;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 0.85rem;
+  padding: 0.75rem 1.25rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  min-height: 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.console-display-input.focus-border {
+  border-color: #f59e0b;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.35);
+}
+
+/* Dígitos já digitados com comparação */
+.char-match {
+  color: #10b981;
+}
+
+.char-mismatch {
+  color: #f43f5e;
+  background: rgba(244, 63, 94, 0.2);
+  border-radius: 0.2rem;
+}
+
+/* Cursor de digitação piscante */
+.typing-cursor {
+  display: inline-block;
+  width: 12px;
+  height: 28px;
+  background: #f59e0b;
+  margin-left: 2px;
+  border-radius: 2px;
+  animation: blinkCursor 0.8s infinite;
+}
+
+@keyframes blinkCursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Botão Enter Lúdico no console */
+.btn-enter-stamp {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #ffffff;
+  border: none;
+  border-radius: 0.85rem;
+  padding: 0.75rem 1.5rem;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4);
+  transition: all 0.15s ease;
+  min-height: 60px;
+}
+
+.btn-enter-stamp:hover {
+  background: linear-gradient(135deg, #34d399, #10b981);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.55);
+}
+
+.btn-enter-stamp:active {
+  transform: translateY(1px);
+}
+
+/* ==========================================================================
+   GUIA DO TECLADO NUMÉRICO (NUMPAD VIRTUAL 3D)
+   ========================================================================== */
+.numpad-drawer {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.btn-toggle-numpad {
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+}
+
+.btn-toggle-numpad:hover {
+  background: rgba(30, 41, 59, 0.95);
+}
+
+.numpad-panel {
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1.25rem;
+  padding: 1rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+}
+
+.numpad-panel.collapsed {
+  transform: translateY(20px) scale(0.9);
+  opacity: 0;
+  pointer-events: none;
+  display: none;
+}
+
+.numpad-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #94a3b8;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 0.4rem;
+}
+
+.numpad-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.np-key {
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 3px solid rgba(0, 0, 0, 0.4);
+  color: #f8fafc;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  font-weight: 800;
+  border-radius: 0.5rem;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.1s ease;
+  user-select: none;
+}
+
+.np-key.tall-key {
+  grid-row: span 2;
+  height: 82px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-color: #34d399;
+}
+
+.np-key.wide-key {
+  grid-column: span 2;
+}
+
+.np-key.notch-5 {
+  position: relative;
+}
+
+.np-key.notch-5::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  width: 10px;
+  height: 2px;
+  background: #fbbf24;
+  border-radius: 1px;
+}
+
+/* Feedback de tecla ativa / pressionada */
+.np-key.key-active {
+  background: #f59e0b !important;
+  color: #1e1b4b !important;
+  transform: translateY(2px);
+  border-bottom-width: 1px;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.6);
+}
+
+.finger-guide-tips {
+  font-size: 0.65rem;
+  color: #94a3b8;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+}
+
+.finger-guide-tips span {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* ==========================================================================
+   MODAIS: SELEÇÃO DE MODO, VITÓRIA DE FASE E GAME OVER
+   ========================================================================== */
+.fiscal-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.fiscal-modal-backdrop.modal-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.fiscal-modal-card {
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1.5rem;
+  max-width: 550px;
+  width: 100%;
+  padding: 2rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  transform: scale(0.95);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.fiscal-modal-backdrop.modal-open .fiscal-modal-card {
+  transform: scale(1);
+}
+
+.modal-badge-icon {
+  font-size: 3rem;
+  text-align: center;
+  margin-bottom: -0.5rem;
+}
+
+.modal-header h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-align: center;
+  color: #ffffff;
+}
+
+.modal-header p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 0.3rem;
+}
+
+/* Modos de jogo na tela inicial */
+.modes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.mode-option-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+}
+
+.mode-option-btn:hover {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.4);
+  transform: translateY(-2px);
+}
+
+.mode-opt-icon {
+  font-size: 2rem;
+}
+
+.mode-opt-info h4 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.mode-opt-info p {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 0.2rem;
+}
+
+/* Modal de Vitória / Resultados */
+.results-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 1rem;
+  border-radius: 1rem;
+}
+
+.result-stat-box {
+  text-align: center;
+}
+
+.result-stat-box .lbl {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.result-stat-box .val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #f59e0b;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.btn-primary-action {
+  flex: 1;
+  background: linear-gradient(135deg, #4f46e5, #4338ca);
+  color: #ffffff;
+  border: none;
+  border-radius: 1rem;
+  padding: 0.85rem;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.4);
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.btn-primary-action:hover {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   RODAPÉ INFORMATIVO
+   ========================================================================== */
+.fiscal-footer {
+  background: rgba(11, 17, 32, 0.9);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.6rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  color: #64748b;
+  z-index: 30;
+}
+
+.fiscal-footer a {
+  color: #818cf8;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.fiscal-footer a:hover {
+  text-decoration: underline;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .invoice-grid {
+    grid-template-columns: 1fr;
+  }
+  .desk-inbox, .desk-outbox {
+    display: none;
+  }
+  .numpad-drawer {
+    display: none;
+  }
+  .console-display-input {
+    font-size: 1.35rem;
+  }
+}
