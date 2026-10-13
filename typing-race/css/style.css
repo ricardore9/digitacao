@@ -1,0 +1,849 @@
+/* ==========================================================================
+   SODIPROM - CAMP Diadema | Typing Race: Desafio da Pista
+   Estilo Lúdico de Alta Velocidade e Multiplayer em Tempo Real
+   ========================================================================== */
+
+:root {
+  --primary-dark: #0a0e17;
+  --panel-bg: rgba(15, 23, 42, 0.95);
+  --asphalt: #1e2533;
+  --asphalt-lines: #cbd5e1;
+  --kerb-red: #ef4444;
+  --kerb-white: #f8fafc;
+  --accent-gold: #f59e0b;
+  --accent-emerald: #10b981;
+  --accent-rose: #f43f5e;
+  --accent-indigo: #6366f1;
+  --accent-cyan: #06b6d4;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--primary-dark);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  user-select: none;
+}
+
+/* ==========================================================================
+   TOPO INSTITUCIONAL
+   ========================================================================== */
+.race-header {
+  background: rgba(10, 14, 23, 0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.65rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 50;
+}
+
+.brand-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.brand-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+}
+
+.brand-logo {
+  height: 38px;
+  object-fit: contain;
+}
+
+.brand-text h1 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  background: linear-gradient(90deg, #ffffff, #f87171, #f59e0b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.1;
+}
+
+.brand-text p {
+  font-size: 0.68rem;
+  color: var(--accent-gold);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.header-btn {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f1f5f9;
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  text-decoration: none;
+}
+
+.header-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.header-btn--orange {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #fbbf24;
+}
+
+.header-btn--back {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.35);
+  color: #c7d2fe;
+}
+
+/* ==========================================================================
+   PAINEL DO COCKPIT (HUD E VELOCÍMETRO)
+   ========================================================================== */
+.cockpit-hud {
+  background: rgba(15, 23, 42, 0.9);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+  padding: 0.6rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.position-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.pos-tag {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 900;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.mode-tag-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.hud-gauges {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.gauge-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.gauge-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+.gauge-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.1;
+}
+
+.gauge-val--wpm {
+  color: #38bdf8;
+  text-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+}
+
+.gauge-val--acc {
+  color: #10b981;
+}
+
+.gauge-val--time {
+  color: #f59e0b;
+}
+
+/* ==========================================================================
+   O CIRCUITO DE CORRIDA (PISTA 2D/2.5D)
+   ========================================================================== */
+.track-arena {
+  width: 100%;
+  max-width: 1150px;
+  margin: 1rem auto 0;
+  padding: 0 1.25rem;
+}
+
+.racetrack-box {
+  background: var(--asphalt);
+  border-radius: 1.5rem;
+  border: 4px solid #334155;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), inset 0 2px 10px rgba(0, 0, 0, 0.6);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Zebras da pista (topo e base) */
+.track-kerb {
+  height: 12px;
+  width: 100%;
+  background: repeating-linear-gradient(45deg, var(--kerb-red), var(--kerb-red) 16px, var(--kerb-white) 16px, var(--kerb-white) 32px);
+  animation: kerbScroll 1s linear infinite;
+}
+
+@keyframes kerbScroll {
+  0% { background-position: 0 0; }
+  100% { background-position: 64px 0; }
+}
+
+/* Linha de Chegada Quadriculada */
+.finish-line-stripe {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 60px;
+  width: 24px;
+  background: repeating-conic-gradient(#000000 0% 25%, #ffffff 0% 50%) 50% / 12px 12px;
+  z-index: 5;
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.2);
+}
+
+.finish-line-label {
+  position: absolute;
+  top: 8px;
+  right: 48px;
+  background: #000000;
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 900;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.35rem;
+  border: 1px solid #ffffff;
+  z-index: 6;
+  letter-spacing: 0.05em;
+}
+
+/* Pistas dos 2 Pilotos */
+.lane-wrapper {
+  position: relative;
+  height: 95px;
+  display: flex;
+  align-items: center;
+  padding: 0 40px 0 20px;
+  border-bottom: 2px dashed rgba(255, 255, 255, 0.15);
+}
+
+.lane-wrapper:last-of-type {
+  border-bottom: none;
+}
+
+/* Marcação de largada */
+.start-line-marker {
+  position: absolute;
+  left: 20px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #f59e0b;
+}
+
+/* Os Carros na Pista */
+.car-entity {
+  position: absolute;
+  left: 2%; /* Dinamicamente alterado de 2% a 92% */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: left 0.15s cubic-bezier(0.2, 0.9, 0.3, 1);
+  z-index: 10;
+}
+
+/* Etiqueta flutuante do piloto */
+.driver-tag-pill {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
+
+.driver-wpm-sub {
+  color: #38bdf8;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* O Carro SVG / Gráfico */
+.car-body-svg {
+  width: 78px;
+  height: 38px;
+  filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.6));
+  position: relative;
+}
+
+/* Chamas do escapamento / Nitro */
+.nitro-flame {
+  position: absolute;
+  left: -22px;
+  top: 14px;
+  width: 24px;
+  height: 12px;
+  background: radial-gradient(ellipse at right, #38bdf8, #6366f1, transparent);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  filter: blur(1px);
+}
+
+.car-entity.nitro-active .nitro-flame {
+  opacity: 1;
+  animation: nitroPulse 0.15s infinite alternate;
+}
+
+@keyframes nitroPulse {
+  0% { transform: scaleX(0.8) scaleY(0.9); }
+  100% { transform: scaleX(1.3) scaleY(1.1); }
+}
+
+/* ==========================================================================
+   SEMÁFORO DE LARGADA (COUNTDOWN)
+   ========================================================================== */
+.countdown-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.75);
+  backdrop-filter: blur(6px);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.countdown-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.gantry-traffic-light {
+  background: #0f172a;
+  border: 3px solid #334155;
+  border-radius: 1.25rem;
+  padding: 0.85rem 1.5rem;
+  display: flex;
+  gap: 1.25rem;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+  margin-bottom: 1.25rem;
+}
+
+.light-bulb {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #1e293b;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.15s ease;
+}
+
+.light-bulb.red.on {
+  background: #ef4444;
+  box-shadow: 0 0 20px #ef4444;
+}
+
+.light-bulb.yellow.on {
+  background: #f59e0b;
+  box-shadow: 0 0 20px #f59e0b;
+}
+
+.light-bulb.green.on {
+  background: #10b981;
+  box-shadow: 0 0 25px #10b981;
+}
+
+.countdown-big-text {
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 24px rgba(255, 255, 255, 0.4);
+}
+
+/* ==========================================================================
+   CARD DO TEXTO DE DIGITAÇÃO (ÁREA DO JOGADOR)
+   ========================================================================== */
+.typing-race-card {
+  width: 100%;
+  max-width: 1150px;
+  margin: 1.25rem auto 1.5rem;
+  padding: 0 1.25rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.text-viewer-box {
+  background: rgba(15, 23, 42, 0.95);
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1.5rem;
+  padding: 1.75rem 2rem;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  position: relative;
+  outline: none;
+}
+
+.text-viewer-box:focus-within {
+  border-color: var(--accent-indigo);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.25);
+}
+
+.text-meta-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 0.75rem;
+}
+
+.text-title-tag {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--accent-gold);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.typing-progress-pill {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #94a3b8;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* A área de texto onde os caracteres acendem */
+.race-text-content {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.35rem;
+  line-height: 1.8;
+  letter-spacing: 0.02em;
+  color: #64748b;
+  min-height: 120px;
+  word-break: break-word;
+}
+
+.char-correct {
+  color: #10b981;
+}
+
+.char-current {
+  background: rgba(245, 158, 11, 0.35);
+  color: #ffffff;
+  border-bottom: 3px solid #f59e0b;
+  border-radius: 2px;
+}
+
+.char-wrong {
+  background: rgba(244, 63, 94, 0.35);
+  color: #f43f5e;
+  border-bottom: 3px solid #f43f5e;
+  border-radius: 2px;
+}
+
+.char-pending {
+  color: #94a3b8;
+}
+
+/* Input invisível com foco permanente */
+.hidden-race-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+}
+
+/* Dica de foco caso perca */
+.focus-alert-hint {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ==========================================================================
+   MODAIS: SELEÇÃO DE MODO, LOBBY MULTIPLAYER E PÓDIO FINAL
+   ========================================================================== */
+.race-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.85);
+  backdrop-filter: blur(10px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.race-modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.race-modal-box {
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1.5rem;
+  max-width: 550px;
+  width: 100%;
+  padding: 2rem;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  transform: scale(0.95);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.race-modal-overlay.open .race-modal-box {
+  transform: scale(1);
+}
+
+.modal-header-icon {
+  font-size: 3rem;
+  text-align: center;
+  margin-bottom: -0.5rem;
+}
+
+.modal-headline h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-align: center;
+  color: #ffffff;
+}
+
+.modal-headline p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 0.3rem;
+}
+
+/* Seleção de Modos */
+.mode-selection-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.mode-card-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+}
+
+.mode-card-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.4);
+  transform: translateY(-2px);
+}
+
+.mode-card-icon {
+  font-size: 2.2rem;
+}
+
+.mode-card-details h4 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.mode-card-details p {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  margin-top: 0.2rem;
+}
+
+/* Lobby Multiplayer (Código e Espera) */
+.room-code-display {
+  background: #020617;
+  border: 2px dashed #f59e0b;
+  border-radius: 1rem;
+  padding: 1.25rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.room-code-lbl {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.room-code-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #fbbf24;
+  letter-spacing: 0.15em;
+}
+
+.btn-copy-code {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  padding: 0.4rem 0.85rem;
+  border-radius: 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+}
+
+.btn-copy-code:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.waiting-spinner-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  color: #38bdf8;
+  font-weight: 700;
+  margin-top: 0.5rem;
+}
+
+.pulse-dot {
+  width: 12px;
+  height: 12px;
+  background: #38bdf8;
+  border-radius: 50%;
+  animation: pulseDot 1.2s infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { transform: scale(0.8); opacity: 0.5; }
+  50% { transform: scale(1.2); opacity: 1; }
+}
+
+/* Formulário de Entrar na Sala */
+.join-room-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.join-input {
+  background: #020617;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 0.85rem;
+  padding: 0.85rem 1rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  text-align: center;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.join-input:focus {
+  border-color: #f59e0b;
+  outline: none;
+}
+
+.btn-race-primary {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #ffffff;
+  border: none;
+  border-radius: 1rem;
+  padding: 0.9rem;
+  font-size: 1rem;
+  font-weight: 900;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.btn-race-primary:hover {
+  background: linear-gradient(135deg, #f87171, #ef4444);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.55);
+}
+
+/* Modal do Pódio de Resultados */
+.podium-stats-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.podium-versus-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.podium-player-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.4rem;
+}
+
+.podium-player-card.winner {
+  border-color: #fbbf24;
+  background: rgba(245, 158, 11, 0.1);
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
+}
+
+.podium-trophy {
+  font-size: 2.2rem;
+}
+
+.podium-name {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.podium-stat-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #38bdf8;
+}
+
+.podium-acc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   RODAPÉ
+   ========================================================================== */
+.race-footer {
+  background: rgba(10, 14, 23, 0.95);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.6rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  color: #64748b;
+  margin-top: auto;
+}
+
+.race-footer a {
+  color: #818cf8;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.race-footer a:hover {
+  text-decoration: underline;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .race-text-content {
+    font-size: 1.15rem;
+  }
+  .hud-gauges {
+    gap: 1rem;
+  }
+  .gauge-val {
+    font-size: 1.15rem;
+  }
+}

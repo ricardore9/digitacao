@@ -269,7 +269,13 @@ class BalcaoFiscalGame {
       const charTyped = this.typedBuffer[i];
       const targetChar = target[i];
 
-      if (targetChar !== undefined && charTyped === targetChar) {
+      const isMatch = (targetChar !== undefined) && (
+        charTyped === targetChar ||
+        (charTyped === '.' && targetChar === ',') ||
+        (charTyped === ',' && targetChar === '.')
+      );
+
+      if (isMatch) {
         html += `<span class="char-match">${charTyped}</span>`;
       } else {
         html += `<span class="char-mismatch">${charTyped}</span>`;
@@ -326,14 +332,33 @@ class BalcaoFiscalGame {
   }
 
   appendChar(char) {
+    if (!this.currentInvoice) return;
+    const currentField = this.currentInvoice.fieldsToInput[this.currentInvoice.currentFieldIndex];
+    const target = currentField.targetValue;
+
+    // Auto-conversão de ponto/vírgula do teclado numérico:
+    const nextTargetChar = target[this.typedBuffer.length];
+    if (char === '.' && nextTargetChar === ',') {
+      char = ',';
+    } else if (char === ',' && nextTargetChar === '.') {
+      char = '.';
+    }
+
+    // Se o próximo caractere do alvo for '.' (ex: 1.250,00) e o usuário digitou um número,
+    // auto-insere o ponto de milhar
+    if (nextTargetChar === '.' && char !== '.' && (char >= '0' && char <= '9')) {
+      this.typedBuffer += '.';
+    }
+
     this.typedBuffer += char;
     this.totalStrokes++;
 
-    const currentField = this.currentInvoice.fieldsToInput[this.currentInvoice.currentFieldIndex];
-    const target = currentField.targetValue;
     const charIndex = this.typedBuffer.length - 1;
+    const isCharMatch = (target[charIndex] === char) ||
+                        (char === '.' && target[charIndex] === ',') ||
+                        (char === ',' && target[charIndex] === '.');
 
-    if (target[charIndex] === char) {
+    if (isCharMatch) {
       this.correctStrokes++;
       window.fiscalAudio.playKeyClick(false);
     } else {
@@ -361,14 +386,40 @@ class BalcaoFiscalGame {
     const currentField = this.currentInvoice.fieldsToInput[this.currentInvoice.currentFieldIndex];
     const target = currentField.targetValue.trim();
     const typed = this.typedBuffer.trim();
+    const isCurrency = currentField.id === 'nf_valor';
 
-    if (typed === target) {
+    const isMatch = this.checkValueMatch(typed, target, isCurrency);
+
+    if (isMatch) {
       // SUCESSO!
       this.handleFieldSuccess();
     } else {
       // ERRO AO CARIMBAR!
       this.handleFieldError();
     }
+  }
+
+  checkValueMatch(typed, target, isCurrency) {
+    if (typed === target) return true;
+
+    if (isCurrency) {
+      return this.normalizeCurrency(typed) === this.normalizeCurrency(target);
+    }
+
+    return false;
+  }
+
+  normalizeCurrency(str) {
+    let s = (str || '').trim().replace(/\s+/g, '');
+    if (s.includes(',')) {
+      s = s.replace(/\./g, '').replace(',', '.');
+    } else if ((s.match(/\./g) || []).length === 1 && s.split('.')[1].length === 2) {
+      // Ponto único com 2 decimais (ex: 156.79 no teclado numérico padrão US)
+      // Mantém como decimal
+    } else {
+      s = s.replace(/\./g, '');
+    }
+    return s;
   }
 
   handleFieldSuccess() {

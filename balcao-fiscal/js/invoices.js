@@ -163,8 +163,8 @@ class InvoiceGenerator {
         break;
 
       case 'currency':
-        // Extrai apenas o número com centavos (ex: "145,80" ou "1.250,00")
-        const rawValue = formattedTotal.replace('R$ ', '').trim();
+        // Valor puro formatado com vírgula (ex: "156,79" ou "1.250,00")
+        const rawValue = this.cleanCurrencyNumber(totalCalculado);
         fieldsToInput.push({
           id: 'nf_valor',
           label: 'VALOR TOTAL DA NOTA FISCAL',
@@ -195,7 +195,7 @@ class InvoiceGenerator {
         break;
 
       case 'dual_input':
-        const rawVal = formattedTotal.replace('R$ ', '').trim();
+        const rawVal = this.cleanCurrencyNumber(totalCalculado);
         fieldsToInput.push({
           id: 'nf_num',
           label: '1º PASSO: NÚMERO DA NOTA',
@@ -226,13 +226,16 @@ class InvoiceGenerator {
     };
   }
 
+  static cleanCurrencyNumber(val) {
+    const num = Number(val) || 0;
+    const parts = num.toFixed(2).split('.');
+    const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    const decimalPart = parts[1];
+    return `${integerPart},${decimalPart}`;
+  }
+
   static formatCurrency(val) {
-    return val.toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
+    return `R$ ${this.cleanCurrencyNumber(val)}`;
   }
 
   static generateFormattedNumber() {

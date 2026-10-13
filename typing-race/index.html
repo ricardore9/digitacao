@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Typing Race: Corrida de Digitação 1v1 | SODIPROM - CAMP Diadema</title>
+  <meta name="description" content="Jogo de corrida de digitação em tempo real da SODIPROM. Desafie colegas em corridas 1v1 ou dispute contra bots inteligentes na pista.">
+
+  <link rel="icon" type="image/png" href="../logo-icon-sodiprom.png">
+
+  <!-- Fontes Google -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+
+  <!-- PeerJS para Conexão P2P em Tempo Real -->
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ==================================================== -->
+  <!-- BARRA SUPERIOR INSTITUCIONAL                         -->
+  <!-- ==================================================== -->
+  <header class="race-header">
+    <div class="brand-wrap">
+      <a href="../index.html" class="brand-link" title="Voltar ao Portal de Jogos">
+        <img src="../sodiprom-logo.png" alt="SODIPROM" class="brand-logo">
+      </a>
+      <div class="brand-text">
+        <h1>Typing Race • Desafio da Pista</h1>
+        <p>Corrida de Digitação em Tempo Real • 1v1 & Multiplayer</p>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button id="btnSoundToggle" class="header-btn" title="Alternar som">
+        <span>🔊</span> <span>Som: Ligado</span>
+      </button>
+      <button class="header-btn header-btn--orange" onclick="window.raceEngine.openModeSelection()" title="Escolher Modo ou Sala">
+        <span>🏎️</span> <span>Modos / Salas</span>
+      </button>
+      <a href="../index.html" class="header-btn header-btn--back" title="Sair para o Portal">
+        <span>⬅️</span> <span>Sair para o Portal</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- ==================================================== -->
+  <!-- PAINEL DO COCKPIT (HUD E VELOCÍMETRO)                -->
+  <!-- ==================================================== -->
+  <div class="cockpit-hud">
+    <div class="position-badge">
+      <span id="positionBadge" class="pos-tag">1º LUGAR 🥇</span>
+      <span class="mode-tag-label">🏁 Circuito Oficial SODIPROM</span>
+    </div>
+
+    <div class="hud-gauges">
+      <div class="gauge-item">
+        <span class="gauge-label">Velocidade (WPM)</span>
+        <span id="liveWpmDisplay" class="gauge-val gauge-val--wpm">0</span>
+      </div>
+
+      <div class="gauge-item">
+        <span class="gauge-label">Precisão</span>
+        <span id="liveAccDisplay" class="gauge-val gauge-val--acc">100%</span>
+      </div>
+
+      <div class="gauge-item">
+        <span class="gauge-label">Cronômetro</span>
+        <span id="liveTimeDisplay" class="gauge-val gauge-val--time">00:00</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================================================== -->
+  <!-- O CIRCUITO DE CORRIDA (PISTA 2D/2.5D)                -->
+  <!-- ==================================================== -->
+  <div class="track-arena">
+    <div class="racetrack-box">
+      <!-- Zebra Superior -->
+      <div class="track-kerb"></div>
+
+      <!-- Linha de Chegada Quadriculada -->
+      <div class="finish-line-stripe"></div>
+      <div class="finish-line-label">CHEGADA 🏁</div>
+
+      <!-- PISTA 1: SEU CARRO -->
+      <div class="lane-wrapper">
+        <div class="start-line-marker"></div>
+
+        <div id="carPlayer" class="car-entity" style="left: 2%;">
+          <div class="driver-tag-pill">
+            <span id="labelPlayerName">Você (Piloto)</span>
+            <span id="tagPlayerWpm" class="driver-wpm-sub">0 WPM</span>
+          </div>
+
+          <!-- Carro Esportivo Vermelho SVG -->
+          <div class="car-body-svg">
+            <div class="nitro-flame"></div>
+            <svg viewBox="0 0 100 45" width="78" height="38">
+              <!-- Sombra -->
+              <ellipse cx="50" cy="40" rx="42" ry="5" fill="rgba(0,0,0,0.4)" />
+              <!-- Chassi -->
+              <path d="M 8 32 Q 5 22 18 18 L 36 12 Q 55 4 72 12 L 92 24 Q 98 28 94 34 L 10 34 Z" fill="#ef4444" stroke="#b91c1c" stroke-width="2" />
+              <!-- Aerofólio -->
+              <path d="M 6 12 L 14 12 L 10 20 Z" fill="#1e293b" />
+              <rect x="4" y="10" width="12" height="3" rx="1.5" fill="#f87171" />
+              <!-- Vidros / Cockpit -->
+              <path d="M 38 14 L 62 14 L 68 22 L 32 22 Z" fill="#0284c7" opacity="0.85" />
+              <!-- Faixa de Corrida Amarela -->
+              <path d="M 22 20 L 88 24 L 88 28 L 20 25 Z" fill="#fbbf24" opacity="0.9" />
+              <!-- Rodas Esportivas -->
+              <circle cx="26" cy="34" r="8" fill="#0f172a" stroke="#64748b" stroke-width="2" />
+              <circle cx="26" cy="34" r="4" fill="#cbd5e1" />
+              <circle cx="78" cy="34" r="8" fill="#0f172a" stroke="#64748b" stroke-width="2" />
+              <circle cx="78" cy="34" r="4" fill="#cbd5e1" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- PISTA 2: OPONENTE / BOT -->
+      <div class="lane-wrapper">
+        <div class="start-line-marker"></div>
+
+        <div id="carOpponent" class="car-entity" style="left: 2%;">
+          <div class="driver-tag-pill">
+            <span id="labelOpponentName">Robô Turbo</span>
+            <span id="tagOpponentWpm" class="driver-wpm-sub">0 WPM</span>
+          </div>
+
+          <!-- Carro Esportivo Azul SVG -->
+          <div class="car-body-svg">
+            <div class="nitro-flame"></div>
+            <svg viewBox="0 0 100 45" width="78" height="38">
+              <!-- Sombra -->
+              <ellipse cx="50" cy="40" rx="42" ry="5" fill="rgba(0,0,0,0.4)" />
+              <!-- Chassi -->
+              <path d="M 8 32 Q 5 22 18 18 L 36 12 Q 55 4 72 12 L 92 24 Q 98 28 94 34 L 10 34 Z" fill="#3b82f6" stroke="#1d4ed8" stroke-width="2" />
+              <!-- Aerofólio -->
+              <path d="M 6 12 L 14 12 L 10 20 Z" fill="#1e293b" />
+              <rect x="4" y="10" width="12" height="3" rx="1.5" fill="#60a5fa" />
+              <!-- Vidros / Cockpit -->
+              <path d="M 38 14 L 62 14 L 68 22 L 32 22 Z" fill="#38bdf8" opacity="0.85" />
+              <!-- Faixa de Corrida Branca -->
+              <path d="M 22 20 L 88 24 L 88 28 L 20 25 Z" fill="#ffffff" opacity="0.9" />
+              <!-- Rodas Esportivas -->
+              <circle cx="26" cy="34" r="8" fill="#0f172a" stroke="#64748b" stroke-width="2" />
+              <circle cx="26" cy="34" r="4" fill="#cbd5e1" />
+              <circle cx="78" cy="34" r="8" fill="#0f172a" stroke="#64748b" stroke-width="2" />
+              <circle cx="78" cy="34" r="4" fill="#cbd5e1" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Zebra Inferior -->
+      <div class="track-kerb"></div>
+
+      <!-- SEMÁFORO DE LARGADA OVERLAY -->
+      <div id="countdownOverlay" class="countdown-overlay">
+        <div class="gantry-traffic-light">
+          <div class="light-bulb red"></div>
+          <div class="light-bulb red"></div>
+          <div class="light-bulb yellow"></div>
+          <div class="light-bulb green"></div>
+          <div class="light-bulb green"></div>
+        </div>
+        <div id="countdownBigText" class="countdown-big-text">3</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================================================== -->
+  <!-- ÁREA DE DIGITAÇÃO DO TEXTO                           -->
+  <!-- ==================================================== -->
+  <main class="typing-race-card">
+    <div id="raceCardArea" class="text-viewer-box" tabindex="0">
+      <div class="text-meta-header">
+        <span id="raceTextTitle" class="text-title-tag">🏁 Texto da Corrida</span>
+        <span id="textProgressChars" class="typing-progress-pill">0 / 0</span>
+      </div>
+
+      <div id="raceTextContainer" class="race-text-content">
+        Aguardando início da largada...
+      </div>
+
+      <input type="text" id="hiddenRaceInput" class="hidden-race-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+
+      <div class="focus-alert-hint">
+        <span>💡 Digite no teclado com agilidade para acelerar seu carro na pista!</span>
+        <span>⌨️ Mantenha o ritmo sem errar para ativar o NITRO</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==================================================== -->
+  <!-- MODAL: ESCOLHA DE MODO DE JOGO                       -->
+  <!-- ==================================================== -->
+  <div id="modalModeSelect" class="race-modal-overlay open">
+    <div class="race-modal-box">
+      <div class="modal-header-icon">🏎️</div>
+      <div class="modal-headline">
+        <h2>Typing Race • Escolha seu Desafio</h2>
+        <p>Acelere na pista digitando textos profissionais da SODIPROM.</p>
+      </div>
+
+      <div class="mode-selection-stack">
+        <!-- Modo Multiplayer 1v1 -->
+        <button class="mode-card-btn" onclick="window.raceEngine.openMultiplayerLobby()">
+          <span class="mode-card-icon">👥</span>
+          <div class="mode-card-details">
+            <h4>Desafio 1v1 Online (Multiplayer)</h4>
+            <p>Crie uma sala ou entre com o código do seu amigo para disputarem em tempo real!</p>
+          </div>
+        </button>
+
+        <!-- Modo vs Bot IA -->
+        <button class="mode-card-btn" onclick="window.raceEngine.startBotRace('medium')">
+          <span class="mode-card-icon">🤖</span>
+          <div class="mode-card-details">
+            <h4>Desafio vs. Robô Turbo (IA)</h4>
+            <p>Corra contra um carro inteligente controlado pelo computador (nível 50 WPM).</p>
+          </div>
+        </button>
+
+        <!-- Modo Treino Solo -->
+        <button class="mode-card-btn" onclick="window.raceEngine.startSoloRace()">
+          <span class="mode-card-icon">⏱️</span>
+          <div class="mode-card-details">
+            <h4>Treino Solo Contra o Relógio</h4>
+            <p>Pratique sem adversários para bater seu próprio recorde de velocidade.</p>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================================================== -->
+  <!-- MODAL: LOBBY MULTIPLAYER                             -->
+  <!-- ==================================================== -->
+  <div id="modalMultiplayerLobby" class="race-modal-overlay">
+    <div class="race-modal-box">
+      <div class="modal-header-icon">🌐</div>
+      <div class="modal-headline">
+        <h2>Grid de Largada Multiplayer</h2>
+        <p>Dispute lado a lado em tempo real pela rede ou internet.</p>
+      </div>
+
+      <!-- Visão 1: Criar ou Entrar -->
+      <div id="multiplayerCreationView" style="display: flex; flex-direction: column; gap: 1rem;">
+        <button class="btn-race-primary" onclick="window.raceEngine.createMultiplayerRoom()">
+          <span>🏁</span> <span>CRIAR SALA DE DESAFIO</span>
+        </button>
+
+        <div style="text-align: center; color: #94a3b8; font-size: 0.8rem; font-weight: 700;">— OU DIGITE O CÓDIGO DA SALA DO AMIGO —</div>
+
+        <div class="join-room-form">
+          <input type="text" id="inputJoinCode" class="join-input" placeholder="Ex: ABCD" maxlength="6">
+          <button class="header-btn header-btn--orange" style="justify-content: center; padding: 0.85rem;" onclick="window.raceEngine.joinMultiplayerRoom()">
+            <span>🚀</span> <span>ENTRAR NA SALA & ACELERAR</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Visão 2: Aguardando oponente com código gerado -->
+      <div id="multiplayerWaitingView" style="display: none; flex-direction: column; gap: 1rem;">
+        <div class="room-code-display">
+          <span class="room-code-lbl">Código da Sala de Corrida</span>
+          <span id="roomCodeDisplay" class="room-code-value">RACE</span>
+          <button class="btn-copy-code" onclick="navigator.clipboard.writeText(document.getElementById('roomCodeDisplay').textContent); alert('Código copiado!')">
+            <span>📋</span> <span>Copiar Código</span>
+          </button>
+        </div>
+
+        <div class="waiting-spinner-box">
+          <div class="pulse-dot"></div>
+          <span id="waitingNoticeText">Aguardando oponente entrar no grid de largada...</span>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: center; margin-top: 0.5rem;">
+        <button class="header-btn" onclick="window.raceEngine.openModeSelection()">
+          <span>⬅️</span> <span>Voltar aos Modos</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================================================== -->
+  <!-- MODAL: PÓDIO DE VITÓRIA                              -->
+  <!-- ==================================================== -->
+  <div id="modalPodium" class="race-modal-overlay">
+    <div class="race-modal-box">
+      <div class="modal-header-icon">🏆</div>
+      <div class="modal-headline">
+        <h2 id="podiumTitle">FIM DA CORRIDA!</h2>
+        <p id="podiumSubTitle">Resultado oficial da prova de digitação</p>
+      </div>
+
+      <div class="podium-stats-wrap">
+        <div class="podium-versus-cards">
+          <!-- Card Jogador -->
+          <div id="podiumCardPlayer" class="podium-player-card winner">
+            <span id="podiumPlayerTrophy" class="podium-trophy">🏆 1º LUGAR</span>
+            <span id="podiumPlayerName" class="podium-name">Você</span>
+            <span id="podiumPlayerWpm" class="podium-stat-pill">62 WPM</span>
+            <span id="podiumPlayerAcc" class="podium-acc">Precisão: 98%</span>
+          </div>
+
+          <!-- Card Oponente -->
+          <div id="podiumCardOpponent" class="podium-player-card">
+            <span id="podiumOpponentTrophy" class="podium-trophy">🥈 2º LUGAR</span>
+            <span id="podiumOpponentName" class="podium-name">Oponente</span>
+            <span id="podiumOpponentWpm" class="podium-stat-pill">48 WPM</span>
+            <span id="podiumOpponentAcc" class="podium-acc">Precisão: 95%</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; margin-top: 0.5rem;">
+        <button class="btn-race-primary" style="flex: 1;" onclick="window.raceEngine.requestRematch()">
+          <span>🔄</span> <span>REVANCHE IMEDIATA</span>
+        </button>
+        <button class="header-btn" onclick="window.raceEngine.openModeSelection()">
+          <span>📋</span> <span>Outro Modo</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================================================== -->
+  <!-- RODAPÉ INSTITUCIONAL                                 -->
+  <!-- ==================================================== -->
+  <footer class="race-footer">
+    <div>
+      SODIPROM • CAMP Diadema — Capacitação para o Mercado de Trabalho • 50 Anos
+    </div>
+    <div>
+      <a href="../index.html">Portal de Jogos</a> • 
+      <a href="https://sodiprom.com.br" target="_blank" rel="noopener noreferrer">sodiprom.com.br</a>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/texts.js"></script>
+  <script src="js/multiplayer.js"></script>
+  <script src="js/race.js"></script>
+</body>
+</html>
